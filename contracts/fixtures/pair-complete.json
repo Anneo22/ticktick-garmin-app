@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "data": {
+    "status": "paired",
+    "relayToken": "fixture-relay-token-not-production"
+  }
+}

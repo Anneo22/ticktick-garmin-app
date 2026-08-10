@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "data": {
+    "projects": [
+      {
+        "id": "project-fixture-1",
+        "name": "Personal",
+        "color": "#F97316",
+        "kind": "TASK",
+        "closed": false,
+        "permission": "write"
+      }
+    ]
+  }
+}

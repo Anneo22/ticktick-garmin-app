@@ -1,0 +1,1025 @@
+{
+  "source": "Garmin SDK compiler.json metadata; Watches/Wearables with watchApp support and Connect IQ API >= 2.4",
+  "generatedWithSdk": "9.2.0",
+  "products": [
+    {
+      "id": "approachs50",
+      "name": "Approach® S50",
+      "api": "5.1.0",
+      "memory": 786432,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "approachs60",
+      "name": "Approach® S60",
+      "api": "2.4.9",
+      "memory": 131072,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "approachs62",
+      "name": "Approach® S62",
+      "api": "3.0.12",
+      "memory": 1048576,
+      "family": "round-260x260",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "approachs7042mm",
+      "name": "Approach® S70 42mm",
+      "api": "5.1.0",
+      "memory": 786432,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "approachs7047mm",
+      "name": "Approach® S70 47mm",
+      "api": "5.1.0",
+      "memory": 786432,
+      "family": "round-454x454",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "d2air",
+      "name": "D2™ Air",
+      "api": "3.2.1",
+      "memory": 1048576,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "d2airx10",
+      "name": "D2™ Air X10",
+      "api": "5.0.0",
+      "memory": 786432,
+      "family": "round-416x416",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "d2charlie",
+      "name": "D2™ Charlie",
+      "api": "3.0.0",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "d2delta",
+      "name": "D2™ Delta",
+      "api": "3.1.8",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "d2deltapx",
+      "name": "D2™ Delta PX",
+      "api": "3.1.8",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "d2deltas",
+      "name": "D2™ Delta S",
+      "api": "3.1.8",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "d2mach1",
+      "name": "D2™ Mach 1",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-416x416",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "d2mach2",
+      "name": "D2™ Mach 2",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-454x454",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "d2mach2pro",
+      "name": "D2™ Mach 2 Pro",
+      "api": "6.0.0",
+      "memory": 786432,
+      "family": "round-454x454",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "descentg1",
+      "name": "Descent™ G1 / G1 Solar",
+      "api": "3.4.0",
+      "memory": 98304,
+      "family": "semioctagon-176x176",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "descentg2",
+      "name": "Descent™ G2",
+      "api": "5.1.0",
+      "memory": 786432,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "descentmk1",
+      "name": "Descent™ Mk1",
+      "api": "3.1.9",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "descentmk2",
+      "name": "Descent™ Mk2 / Mk2i",
+      "api": "3.4.5",
+      "memory": 1310720,
+      "family": "round-280x280",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "descentmk2s",
+      "name": "Descent™ Mk2 S",
+      "api": "3.4.5",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "descentmk343mm",
+      "name": "Descent™ Mk3 43mm / Mk3i 43mm",
+      "api": "5.1.0",
+      "memory": 786432,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "descentmk351mm",
+      "name": "Descent™ Mk3i 51mm",
+      "api": "5.1.0",
+      "memory": 786432,
+      "family": "round-454x454",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "enduro",
+      "name": "Enduro™",
+      "api": "3.4.2",
+      "memory": 131072,
+      "family": "round-280x280",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "enduro3",
+      "name": "Enduro™ 3",
+      "api": "6.0.2",
+      "memory": 786432,
+      "family": "round-280x280",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "epix2",
+      "name": "epix™ (Gen 2) / quatix® 7 Sapphire",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-416x416",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "epix2pro42mm",
+      "name": "epix™ Pro (Gen 2) 42mm",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "epix2pro47mm",
+      "name": "epix™ Pro (Gen 2) 47mm / quatix® 7 Pro",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-416x416",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "epix2pro51mm",
+      "name": "epix™ Pro (Gen 2) 51mm / D2™ Mach 1 Pro / tactix® 7 – AMOLED Edition",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-454x454",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix5",
+      "name": "fēnix® 5 / quatix® 5",
+      "api": "3.1.6",
+      "memory": 131072,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix5plus",
+      "name": "fēnix® 5 Plus",
+      "api": "3.3.3",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix5s",
+      "name": "fēnix® 5S",
+      "api": "3.1.6",
+      "memory": 131072,
+      "family": "round-218x218",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix5splus",
+      "name": "fēnix® 5S Plus",
+      "api": "3.3.3",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix5x",
+      "name": "fēnix® 5X / tactix® Charlie",
+      "api": "3.1.6",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix5xplus",
+      "name": "fēnix® 5X Plus",
+      "api": "3.3.3",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix6",
+      "name": "fēnix® 6 / 6 Solar / 6 Dual Power",
+      "api": "3.4.5",
+      "memory": 131072,
+      "family": "round-260x260",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix6pro",
+      "name": "fēnix® 6 Pro / 6 Sapphire / 6 Pro Solar / 6 Pro Dual Power / quatix® 6",
+      "api": "3.4.5",
+      "memory": 1310720,
+      "family": "round-260x260",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix6s",
+      "name": "fēnix® 6S / 6S Solar / 6S Dual Power",
+      "api": "3.4.5",
+      "memory": 131072,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix6spro",
+      "name": "fēnix® 6S Pro / 6S Sapphire / 6S Pro Solar / 6S Pro Dual Power",
+      "api": "3.4.5",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix6xpro",
+      "name": "fēnix® 6X Pro / 6X Sapphire / 6X Pro Solar / tactix® Delta Sapphire / Delta Solar / Delta Solar - Ballistics Edition / quatix® 6X / 6X Solar / 6X Dual Power",
+      "api": "3.4.5",
+      "memory": 1310720,
+      "family": "round-280x280",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix7",
+      "name": "fēnix® 7 / quatix® 7",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-260x260",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix7pro",
+      "name": "fēnix® 7 Pro",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-260x260",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix7pronowifi",
+      "name": "fēnix® 7 Pro - Solar Edition (no Wi-Fi)",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-260x260",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix7s",
+      "name": "fēnix® 7S",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix7spro",
+      "name": "fēnix® 7S Pro",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix7x",
+      "name": "fēnix® 7X / tactix® 7 / quatix® 7X Solar / Enduro™ 2",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-280x280",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix7xpro",
+      "name": "fēnix® 7X Pro",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-280x280",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix7xpronowifi",
+      "name": "fēnix® 7X Pro - Solar Edition (no Wi-Fi)",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-280x280",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix843mm",
+      "name": "fēnix® 8 43mm",
+      "api": "6.0.2",
+      "memory": 786432,
+      "family": "round-416x416",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix847mm",
+      "name": "fēnix® 8 47mm / 51mm / tactix® 8 47mm / 51mm / quatix® 8 47mm / 51mm",
+      "api": "6.0.2",
+      "memory": 786432,
+      "family": "round-454x454",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix8pro47mm",
+      "name": "fēnix® 8 Pro 47mm / 51mm / MicroLED / quatix® 8 Pro 47mm / 51mm",
+      "api": "6.0.2",
+      "memory": 786432,
+      "family": "round-454x454",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix8solar47mm",
+      "name": "fēnix® 8 Solar 47mm",
+      "api": "6.0.2",
+      "memory": 786432,
+      "family": "round-260x260",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenix8solar51mm",
+      "name": "fēnix® 8 Solar 51mm / tactix® 8 Solar 51mm",
+      "api": "6.0.2",
+      "memory": 786432,
+      "family": "round-280x280",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenixchronos",
+      "name": "fēnix® Chronos",
+      "api": "3.1.6",
+      "memory": 131072,
+      "family": "round-218x218",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fenixe",
+      "name": "fēnix® E",
+      "api": "6.0.2",
+      "memory": 786432,
+      "family": "round-416x416",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr165",
+      "name": "Forerunner® 165",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr165m",
+      "name": "Forerunner® 165 Music",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr170",
+      "name": "Forerunner® 170",
+      "api": "6.0.0",
+      "memory": 786432,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr170m",
+      "name": "Forerunner® 170 Music",
+      "api": "6.0.0",
+      "memory": 786432,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr245",
+      "name": "Forerunner® 245",
+      "api": "3.3.6",
+      "memory": 131072,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr245m",
+      "name": "Forerunner® 245 Music",
+      "api": "3.3.6",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr255",
+      "name": "Forerunner® 255",
+      "api": "5.2.0",
+      "memory": 524288,
+      "family": "round-260x260",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr255m",
+      "name": "Forerunner® 255 Music",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-260x260",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr255s",
+      "name": "Forerunner® 255s",
+      "api": "5.2.0",
+      "memory": 524288,
+      "family": "round-218x218",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr255sm",
+      "name": "Forerunner® 255s Music",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-218x218",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr265",
+      "name": "Forerunner® 265",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-416x416",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr265s",
+      "name": "Forerunner® 265s",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-360x360",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr55",
+      "name": "Forerunner® 55",
+      "api": "3.4.6",
+      "memory": 131072,
+      "family": "round-208x208",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr57042mm",
+      "name": "Forerunner® 570 42mm",
+      "api": "6.0.2",
+      "memory": 786432,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr57047mm",
+      "name": "Forerunner® 570 47mm",
+      "api": "6.0.2",
+      "memory": 786432,
+      "family": "round-454x454",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr645",
+      "name": "Forerunner® 645",
+      "api": "3.1.8",
+      "memory": 131072,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr645m",
+      "name": "Forerunner® 645 Music",
+      "api": "3.2.3",
+      "memory": 1048576,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr70",
+      "name": "Forerunner® 70",
+      "api": "6.0.0",
+      "memory": 786432,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr735xt",
+      "name": "Forerunner® 735xt",
+      "api": "2.4.5",
+      "memory": 131072,
+      "family": "semiround-215x180",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr745",
+      "name": "Forerunner® 745",
+      "api": "3.3.6",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr935",
+      "name": "Forerunner® 935",
+      "api": "3.1.6",
+      "memory": 131072,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr945",
+      "name": "Forerunner® 945",
+      "api": "3.3.6",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr945lte",
+      "name": "Forerunner® 945 LTE",
+      "api": "3.4.3",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr955",
+      "name": "Forerunner® 955 / Solar",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-260x260",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr965",
+      "name": "Forerunner® 965",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-454x454",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "fr970",
+      "name": "Forerunner® 970",
+      "api": "6.0.2",
+      "memory": 786432,
+      "family": "round-454x454",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "instinct2",
+      "name": "Instinct® 2 / Solar / Dual Power / dēzl Edition",
+      "api": "3.4.2",
+      "memory": 98304,
+      "family": "semioctagon-176x176",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "instinct2s",
+      "name": "Instinct® 2S / Solar / Dual Power",
+      "api": "3.4.2",
+      "memory": 98304,
+      "family": "semioctagon-163x156",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "instinct2x",
+      "name": "Instinct® 2X Solar",
+      "api": "3.4.3",
+      "memory": 98304,
+      "family": "semioctagon-176x176",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "instinct3amoled45mm",
+      "name": "Instinct® 3 AMOLED 45mm",
+      "api": "6.0.2",
+      "memory": 786432,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "instinct3amoled50mm",
+      "name": "Instinct® 3 AMOLED 50mm",
+      "api": "6.0.2",
+      "memory": 786432,
+      "family": "round-416x416",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "instinct3solar45mm",
+      "name": "Instinct® 3 Solar 45mm / 50mm",
+      "api": "6.0.2",
+      "memory": 131072,
+      "family": "semioctagon-176x176",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "instinctcrossover",
+      "name": "Instinct® Crossover",
+      "api": "3.4.2",
+      "memory": 98304,
+      "family": "semioctagon-176x176",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "instinctcrossoveramoled",
+      "name": "Instinct® Crossover AMOLED",
+      "api": "6.0.2",
+      "memory": 786432,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "instincte40mm",
+      "name": "Instinct® E 40mm",
+      "api": "6.0.2",
+      "memory": 131072,
+      "family": "semioctagon-166x166",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "instincte45mm",
+      "name": "Instinct® E 45mm",
+      "api": "6.0.2",
+      "memory": 131072,
+      "family": "semioctagon-176x176",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "legacyherocaptainmarvel",
+      "name": "Captain Marvel",
+      "api": "3.3.6",
+      "memory": 1048576,
+      "family": "round-218x218",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "legacyherofirstavenger",
+      "name": "First Avenger",
+      "api": "3.3.6",
+      "memory": 1048576,
+      "family": "round-260x260",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "legacysagadarthvader",
+      "name": "Darth Vader™",
+      "api": "3.3.6",
+      "memory": 1048576,
+      "family": "round-260x260",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "legacysagarey",
+      "name": "Rey™",
+      "api": "3.3.6",
+      "memory": 1048576,
+      "family": "round-218x218",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "marq2",
+      "name": "MARQ® (Gen 2) Athlete / Adventurer / Captain / Golfer / Carbon Edition / Commander - Carbon Edition",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "marq2aviator",
+      "name": "MARQ® (Gen 2) Aviator",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "marqadventurer",
+      "name": "MARQ® Adventurer",
+      "api": "3.4.5",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "marqathlete",
+      "name": "MARQ® Athlete",
+      "api": "3.4.5",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "marqaviator",
+      "name": "MARQ® Aviator",
+      "api": "3.4.5",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "marqcaptain",
+      "name": "MARQ® Captain / MARQ® Captain: American Magic Edition",
+      "api": "3.4.5",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "marqcommander",
+      "name": "MARQ® Commander",
+      "api": "3.4.5",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "marqdriver",
+      "name": "MARQ® Driver",
+      "api": "3.4.5",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "marqexpedition",
+      "name": "MARQ® Expedition",
+      "api": "3.4.5",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "marqgolfer",
+      "name": "MARQ® Golfer",
+      "api": "3.4.5",
+      "memory": 1310720,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "venu",
+      "name": "Venu®",
+      "api": "3.3.6",
+      "memory": 1048576,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "venu2",
+      "name": "Venu® 2",
+      "api": "5.0.0",
+      "memory": 786432,
+      "family": "round-416x416",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "venu2plus",
+      "name": "Venu® 2 Plus",
+      "api": "5.0.0",
+      "memory": 786432,
+      "family": "round-416x416",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "venu2s",
+      "name": "Venu® 2S",
+      "api": "5.0.0",
+      "memory": 786432,
+      "family": "round-360x360",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "venu3",
+      "name": "Venu® 3",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-454x454",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "venu3s",
+      "name": "Venu® 3S",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "venu441mm",
+      "name": "Venu® 4 41mm",
+      "api": "6.0.2",
+      "memory": 786432,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "venu445mm",
+      "name": "Venu® 4 45mm / D2™ Air X15",
+      "api": "6.0.2",
+      "memory": 786432,
+      "family": "round-454x454",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "venud",
+      "name": "Venu® Mercedes-Benz® Collection",
+      "api": "3.3.6",
+      "memory": 1048576,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "venusq",
+      "name": "Venu® Sq",
+      "api": "3.3.6",
+      "memory": 131072,
+      "family": "rectangle-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "venusq2",
+      "name": "Venu® Sq 2",
+      "api": "5.0.0",
+      "memory": 786432,
+      "family": "rectangle-320x360",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "venusq2m",
+      "name": "Venu® Sq 2 Music",
+      "api": "5.0.0",
+      "memory": 786432,
+      "family": "rectangle-320x360",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "venusqm",
+      "name": "Venu® Sq. Music Edition",
+      "api": "3.3.6",
+      "memory": 1048576,
+      "family": "rectangle-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "venux1",
+      "name": "Venu® X1",
+      "api": "6.0.2",
+      "memory": 786432,
+      "family": "rectangle-448x486",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "vivoactive_hr",
+      "name": "vívoactive® HR",
+      "api": "2.4.2",
+      "memory": 131072,
+      "family": "rectangle-148x205",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "vivoactive3",
+      "name": "vívoactive® 3",
+      "api": "3.1.9",
+      "memory": 131072,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "vivoactive3d",
+      "name": "vívoactive® 3 Mercedes-Benz® Collection",
+      "api": "3.0.0",
+      "memory": 131072,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "vivoactive3m",
+      "name": "vívoactive® 3 Music",
+      "api": "3.2.0",
+      "memory": 1048576,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "vivoactive3mlte",
+      "name": "vívoactive® 3 Music LTE",
+      "api": "3.1.6",
+      "memory": 1048576,
+      "family": "round-240x240",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "vivoactive4",
+      "name": "vívoactive® 4",
+      "api": "3.3.6",
+      "memory": 1048576,
+      "family": "round-260x260",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "vivoactive4s",
+      "name": "vívoactive® 4S",
+      "api": "3.3.6",
+      "memory": 1048576,
+      "family": "round-218x218",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "vivoactive5",
+      "name": "vívoactive® 5",
+      "api": "5.2.0",
+      "memory": 786432,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    },
+    {
+      "id": "vivoactive6",
+      "name": "vívoactive® 6",
+      "api": "6.0.2",
+      "memory": 786432,
+      "family": "round-390x390",
+      "verifiedFrom": "sdk"
+    }
+  ],
+  "representative": {
+    "primaryFenix8": "fenix847mm",
+    "roundAmoled": "venu3",
+    "roundMip": "fenix7",
+    "rectangular": "venusq2",
+    "buttonOnly": "instinct2",
+    "smallestInstinct": "instinct2s",
+    "semiRound": "fr735xt",
+    "narrowRectangle": "vivoactive_hr",
+    "largeRectangle": "venux1"
+  }
+}

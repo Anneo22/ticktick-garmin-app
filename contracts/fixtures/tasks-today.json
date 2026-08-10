@@ -1,0 +1,28 @@
+{
+  "ok": true,
+  "data": {
+    "tasks": [
+      {
+        "id": "task-fixture-1",
+        "projectId": "project-fixture-1",
+        "title": "Test the Garmin app",
+        "dueDate": "2026-08-05T17:00:00+0100",
+        "isAllDay": false,
+        "priority": 5,
+        "status": 0,
+        "kind": "TEXT"
+      },
+      {
+        "id": "task-fixture-2",
+        "projectId": "project-fixture-1",
+        "title": "Queue an offline completion",
+        "dueDate": "2026-08-05T20:00:00+0100",
+        "isAllDay": true,
+        "priority": 0,
+        "status": 0,
+        "kind": "CHECKLIST"
+      }
+    ],
+    "syncedAt": "2026-08-05T12:00:00Z"
+  }
+}

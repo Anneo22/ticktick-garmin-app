@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "data": {
+    "mutationId": "mutation-fixture-1",
+    "status": "applied"
+  }
+}

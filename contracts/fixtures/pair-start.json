@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "data": {
+    "deviceSecret": "fixture-device-secret-not-production",
+    "userCode": "R7M4QK",
+    "verificationUrl": "https://example.invalid/pair",
+    "expiresIn": 600,
+    "pollAfter": 3
+  }
+}

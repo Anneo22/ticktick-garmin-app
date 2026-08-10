@@ -1,0 +1,19 @@
+name = "ticktick-garmin-relay"
+main = "src/index.ts"
+compatibility_date = "2026-08-05"
+
+[triggers]
+crons = ["17 3 * * *"]
+
+[[ratelimits]]
+name = "RATE_LIMITER"
+namespace_id = "1001"
+
+[ratelimits.simple]
+limit = 120
+period = 60
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ticktick-garmin"
+database_id = "a4c7167f-25cf-4532-b0ae-7d9512fca5c9"
