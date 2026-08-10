@@ -3,7 +3,7 @@ import { webcrypto } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { decrypt, encrypt, randomSecret, sha256 } from "../src/crypto";
-import worker, { tasksForView, type Env } from "../src/index";
+import worker, { tasksForInbox, tasksForView, type Env } from "../src/index";
 
 Object.defineProperty(globalThis, "crypto", { value: webcrypto });
 
@@ -437,6 +437,45 @@ test("Today and Overdue classify by due date before start date", async (context)
   } finally {
     context.mock.restoreAll();
   }
+});
+
+test("Inbox contains only open tasks outside every named list", async (context) => {
+  const db = new FakeD1();
+  const { env, relayToken } = await authenticatedEnv(db);
+  const calls: Request[] = [];
+  context.mock.method(globalThis, "fetch", async (input: string | URL | Request, init?: RequestInit) => {
+    const request = input instanceof Request ? input : new Request(input, init);
+    calls.push(request);
+    const path = new URL(request.url).pathname;
+    if (path.endsWith("/project")) {
+      return Response.json([
+        { id: "work", name: "Work" },
+        { id: "personal", name: "Personal" },
+      ]);
+    }
+    return Response.json({ tasks: [
+      { id: "work-task", projectId: "work", title: "Inside Work", status: 0 },
+      { id: "inbox-task", projectId: "inbox-internal", title: "Inbox task", status: 0 },
+      { id: "unassigned-task", title: "Malformed task without project field", status: 0 },
+    ] });
+  });
+  try {
+    const response = await worker.fetch(new Request("https://relay.test/v1/tasks?view=inbox", { headers: { authorization: `Bearer ${relayToken}` } }), env);
+    assert.equal(response.status, 200);
+    const payload = await response.json() as { data: { tasks: Array<{ id: string; projectId: string }> } };
+    assert.deepEqual(payload.data.tasks.map((task) => task.id), ["inbox-task"]);
+    assert.equal(payload.data.tasks[0].projectId, "inbox-internal");
+    assert.equal(calls.length, 2);
+    const shapes = calls.map((call) => `${call.method} ${new URL(call.url).pathname}`).sort();
+    assert.deepEqual(shapes, ["GET /open/v1/project", "POST /open/v1/task/filter"]);
+  } finally {
+    context.mock.restoreAll();
+  }
+});
+
+test("Inbox derivation rejects a malformed list response", () => {
+  assert.equal(tasksForInbox([{ id: "task-1", projectId: "inbox" }], { projects: [] }), null);
+  assert.equal(tasksForInbox([{ id: "task-1", projectId: "inbox" }], [{ name: "Missing ID" }]), null);
 });
 
 test("projects are named, bounded, and normalized", async (context) => {

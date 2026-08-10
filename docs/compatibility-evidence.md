@@ -12,7 +12,7 @@ The compatibility claim is deliberately narrower than "every Garmin watch." The 
 - Minimum compiled API: 2.4.2.
 - Minimum compiled application memory: 98,304 bytes.
 - Garmin signed export variants: 220.
-- Monkey C tests: 61 on Fenix 8 47 mm and 61 on Instinct 2S.
+- Monkey C tests: 73 on Fenix 8 47 mm and 73 on Instinct 2S.
 - Release tests are kept out of the production source path so Toybox.Test cannot enter Store binaries.
 
 The exact product set is generated in `watch/device-matrix.json`. `scripts/verify-matrix.sh` compiles every listed SDK product rather than extrapolating from a few screen sizes.
@@ -29,7 +29,7 @@ Clean launch and task-list rendering were inspected on:
 
 These checks prove clean launch and layout rendering on representative profiles. Production TickTick OAuth, Today sync, and task completion have also been accepted on a Fenix 8. They do not prove every physical button mapping or touch gesture for this exact redesigned binary, which remains blocked until the final physical interaction pass.
 
-The current interaction pass also inspects a 454 px Fenix task list, its separate completion confirmation, a 163 x 156 Instinct 2S fallback, and synthetic 215 x 180 semiround geometry. The layout tests prove that task rows, completion nodes, navigation, and action buttons do not overlap on representative square and semiround sizes.
+The current interaction pass also inspects a 454 px Fenix task list, a Lists hierarchy, deliberately long task and list names, its separate completion confirmation, a 163 x 156 Instinct 2S fallback, and synthetic 215 x 180 semiround geometry. The layout tests prove that task rows, completion nodes, navigation, and action buttons do not overlap on representative square and semiround sizes.
 
 ## Compatibility policy
 

@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "data": {
+    "tasks": [
+      {
+        "id": "task-inbox-1",
+        "projectId": "inbox-internal",
+        "title": "Review the Inbox fixture",
+        "priority": 0,
+        "status": 0,
+        "kind": "TEXT"
+      }
+    ],
+    "syncedAt": "2026-08-10T12:00:00Z"
+  }
+}

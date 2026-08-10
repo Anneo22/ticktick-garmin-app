@@ -35,6 +35,10 @@ for (const task of tasks.data.tasks) {
   assert.equal(task.status, 0, "today fixture must contain open tasks only");
 }
 
+const inbox = JSON.parse(await readFile(join(fixtureDir, "tasks-inbox.json"), "utf8"));
+assert.ok(inbox.data.tasks.length <= 20, "Inbox page must remain bounded");
+assert.ok(inbox.data.tasks.every((task) => typeof task.projectId === "string"), "every visible Inbox task must remain completable");
+
 const relayClient = await readFile(join(root, "..", "watch", "source", "RelayClient.mc"), "utf8");
 assert.match(relayClient, /utcOffsetMinutes/, "watch must send its local UTC offset to date views");
 assert.match(relayClient, /\/v1\/projects/, "watch and relay must share the projects route");

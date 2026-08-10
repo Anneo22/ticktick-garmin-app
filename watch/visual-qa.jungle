@@ -1,0 +1,3 @@
+project.manifest = ../build/visual-qa/manifest.xml
+base.sourcePath = source;visual-qa
+base.resourcePath = resources

@@ -10,6 +10,19 @@ const FENIX_TITLE_HEIGHT = 29;
 const FENIX_BODY_HEIGHT = 21;
 const COMPACT_SIZE = 176;
 
+class UpdateTrackingController extends TaskController {
+    var updateRequests;
+
+    function initialize() {
+        TaskController.initialize();
+        updateRequests = 0;
+    }
+
+    function requestUpdate() {
+        updateRequests += 1;
+    }
+}
+
 function routeController(taskCount) {
     var controller = new TaskController();
     controller.store.unpair();
@@ -51,10 +64,10 @@ function overlaps(first, second) {
 function rowTapSelectsOnlyAndNeverArms(logger as Test.Logger) as Boolean {
     var controller = routeController(3);
     var view = routeView(controller, FENIX_SIZE);
-    var target = boundsForIndex(view.rowBounds, 2);
+    var target = boundsForIndex(view.rowBounds, 1);
     Test.assert(target != null);
     Test.assert(view.handleTap([target[0] + target[2] - 4, centerOf(target)[1]]));
-    Test.assertEqual(2, controller.selected);
+    Test.assertEqual(1, controller.selected);
     Test.assert(!controller.confirmingCompletion);
     Test.assert(controller.relay.lastAction == null);
     return true;
@@ -80,13 +93,13 @@ function selectedRowRetapNeverArmsOrCompletes(logger as Test.Logger) as Boolean 
 function completionNodeArmsOnlyTheSelectedStop(logger as Test.Logger) as Boolean {
     var controller = routeController(3);
     var view = routeView(controller, FENIX_SIZE);
-    var other = boundsForIndex(view.nodeBounds, 2);
+    var other = boundsForIndex(view.nodeBounds, 1);
     Test.assert(view.handleTap(centerOf(other)));
-    Test.assertEqual(2, controller.selected);
+    Test.assertEqual(1, controller.selected);
     Test.assert(!controller.confirmingCompletion);
 
     view.layout(FENIX_SIZE, FENIX_SIZE, FENIX_TITLE_HEIGHT, FENIX_BODY_HEIGHT);
-    var selectedNode = boundsForIndex(view.nodeBounds, 2);
+    var selectedNode = boundsForIndex(view.nodeBounds, 1);
     Test.assert(view.handleTap(centerOf(selectedNode)));
     Test.assert(controller.confirmingCompletion);
     Test.assert(controller.relay.lastAction == null);
@@ -148,12 +161,34 @@ function navigationTapSwitchesScopeAndDisarms(logger as Test.Logger) as Boolean 
     var controller = routeController(3);
     var view = routeView(controller, FENIX_SIZE);
     Test.assertEqual("today", view.navBounds[0][4]);
-    Test.assertEqual("overdue", view.navBounds[1][4]);
-    Test.assertEqual("projects", view.navBounds[2][4]);
+    Test.assertEqual("inbox", view.navBounds[1][4]);
+    Test.assertEqual("overdue", view.navBounds[2][4]);
     Test.assert(view.handleTap(centerOf(view.navBounds[1])));
-    Test.assertEqual("overdue", controller.mode);
+    Test.assertEqual("inbox", controller.mode);
     Test.assert(!controller.confirmingCompletion);
-    Test.assertEqual("overdue", controller.relay.lastView);
+    Test.assertEqual("inbox", controller.relay.lastView);
+    return true;
+}
+
+(:test)
+function navigationShowsFourUncrowdedCellsAndAllFourScopes(logger as Test.Logger) as Boolean {
+    var controller = routeController(3);
+    var view = routeView(controller, FENIX_SIZE);
+    Test.assertEqual(4, view.navBounds.size());
+    for (var index = 0; index < view.navBounds.size(); index += 1) {
+        var bounds = view.navBounds[index];
+        Test.assert(bounds[0] >= FENIX_SIZE / 16);
+        Test.assert(bounds[0] + bounds[2] <= FENIX_SIZE - FENIX_SIZE / 16);
+        Test.assert(bounds[2] >= 90);
+        Test.assert(bounds[3] >= 58);
+        if (index > 0) {
+            Test.assert(!overlaps(bounds, view.navBounds[index - 1]));
+        }
+    }
+    Test.assertEqual("today", view.navBounds[0][4]);
+    Test.assertEqual("inbox", view.navBounds[1][4]);
+    Test.assertEqual("overdue", view.navBounds[2][4]);
+    Test.assertEqual("lists", view.navBounds[3][4]);
     return true;
 }
 
@@ -184,7 +219,7 @@ function navigationDisarmsEvenWhileBusy(logger as Test.Logger) as Boolean {
     controller.busy = true;
     controller.cycleMode();
     Test.assert(!controller.confirmingCompletion);
-    Test.assertEqual("overdue", controller.mode);
+    Test.assertEqual("inbox", controller.mode);
     Test.assertEqual("switching_view", controller.status);
 
     controller.armCompletion();
@@ -217,8 +252,8 @@ function drawnBoundsAreTheHitTestBounds(logger as Test.Logger) as Boolean {
     var controller = routeController(6);
     controller.selected = 3;
     var view = routeView(controller, FENIX_SIZE);
-    Test.assertEqual(3, view.rowBounds.size());
-    Test.assertEqual(3, view.nodeBounds.size());
+    Test.assertEqual(2, view.rowBounds.size());
+    Test.assertEqual(2, view.nodeBounds.size());
     for (var row = 0; row < view.rowBounds.size(); row += 1) {
         var bounds = view.rowBounds[row];
         Test.assert(bounds[2] > 0 && bounds[3] > 0);
@@ -251,17 +286,34 @@ function compactStaysButtonFirstWithoutTouchCompletion(logger as Test.Logger) as
 }
 
 (:test)
+function compactTouchFooterCyclesOnlyTheFourVisibleScopes(logger as Test.Logger) as Boolean {
+    var controller = routeController(0);
+    var modes = ["inbox", "overdue", "lists", "today"];
+    for (var index = 0; index < modes.size(); index += 1) {
+        controller.busy = false;
+        var view = routeView(controller, COMPACT_SIZE);
+        Test.assert(view.handleTap(centerOf(view.navBounds[0])));
+        Test.assertEqual(modes[index], controller.mode);
+        Test.assert(!controller.mode.equals("account"));
+    }
+    return true;
+}
+
+(:test)
 function emptyAndLoadingViewsKeepSafeNavigation(logger as Test.Logger) as Boolean {
     var controller = routeController(0);
     var view = routeView(controller, FENIX_SIZE);
-    Test.assertEqual(3, view.navBounds.size());
+    Test.assertEqual(4, view.navBounds.size());
     Test.assert(view.actionBounds != null);
-    Test.assert(view.handleTap(centerOf(view.navBounds[2])));
-    Test.assertEqual("projects", controller.mode);
+    controller.mode = "overdue";
+    controller.busy = false;
+    view.layout(FENIX_SIZE, FENIX_SIZE, FENIX_TITLE_HEIGHT, FENIX_BODY_HEIGHT);
+    Test.assert(view.handleTap(centerOf(view.navBounds[3])));
+    Test.assertEqual("lists", controller.mode);
 
     controller.busy = true;
     view.layout(FENIX_SIZE, FENIX_SIZE, FENIX_TITLE_HEIGHT, FENIX_BODY_HEIGHT);
-    Test.assertEqual(3, view.navBounds.size());
+    Test.assertEqual(4, view.navBounds.size());
     Test.assert(view.actionBounds == null);
     return true;
 }
@@ -335,19 +387,20 @@ function delegateMenuCannotSkipConfirmation(logger as Test.Logger) as Boolean {
     Test.assert(controller.confirmingCompletion);
     Test.assert(delegate.onMenu());
     Test.assert(!controller.confirmingCompletion);
-    Test.assertEqual("overdue", controller.mode);
+    Test.assertEqual("inbox", controller.mode);
 
     return true;
 }
 
 (:test)
 function representativeScreenFamiliesKeepGeometrySeparated(logger as Test.Logger) as Boolean {
-    var sizes = [176, 208, 218, 240, 260, 390, 454];
+    var sizes = [176, 208, 218, 240, 260, 390, 416, 454];
     for (var sizeIndex = 0; sizeIndex < sizes.size(); sizeIndex += 1) {
         var size = sizes[sizeIndex];
         var controller = routeController(4);
         var view = new TaskListView(controller);
         view.layout(size, size, size <= 240 ? 21 : 29, size <= 240 ? 16 : 21);
+        Test.assertEqual(size <= 280 ? 1 : (size >= 400 ? 4 : 3), view.navBounds.size());
         for (var row = 0; row < view.rowBounds.size(); row += 1) {
             var bounds = view.rowBounds[row];
             Test.assert(bounds[0] >= 0 && bounds[1] >= 0);
@@ -378,9 +431,9 @@ function semiroundCompactGeometryKeepsEveryTargetVisible(logger as Test.Logger) 
 }
 
 (:test)
-function projectRowsOpenOnlyThroughTheirOwnNode(logger as Test.Logger) as Boolean {
+function listRowsOpenTheirOwnListWithoutACompletionPath(logger as Test.Logger) as Boolean {
     var controller = routeController(0);
-    controller.mode = "projects";
+    controller.mode = "lists";
     controller.projects = [
         {"id" => "project-1", "name" => "First"},
         {"id" => "project-2", "name" => "Second"}
@@ -388,13 +441,147 @@ function projectRowsOpenOnlyThroughTheirOwnNode(logger as Test.Logger) as Boolea
     var view = routeView(controller, FENIX_SIZE);
     var row = boundsForIndex(view.rowBounds, 1);
     Test.assert(view.handleTap([row[0] + row[2] - 4, centerOf(row)[1]]));
-    Test.assertEqual(1, controller.selected);
-    Test.assertEqual("projects", controller.mode);
-
-    view.layout(FENIX_SIZE, FENIX_SIZE, FENIX_TITLE_HEIGHT, FENIX_BODY_HEIGHT);
-    Test.assert(view.handleTap(centerOf(boundsForIndex(view.nodeBounds, 1))));
     Test.assertEqual("project", controller.mode);
     Test.assertEqual("project-2", controller.projectId);
     Test.assert(!controller.confirmingCompletion);
+    Test.assert(controller.relay.lastAction == null);
+    return true;
+}
+
+(:test)
+function staleRowSemanticsNeverCrossBetweenListsAndTasks(logger as Test.Logger) as Boolean {
+    var controller = routeController(1);
+    controller.mode = "lists";
+    controller.projects = [{"id" => "project-1", "name" => "First"}];
+    var listView = routeView(controller, FENIX_SIZE);
+    var staleListRow = centerOf(listView.rowBounds[0]);
+    controller.mode = "today";
+    controller.tasks = [{"id" => "task-1", "projectId" => "project-1", "title" => "Task"}];
+    Test.assert(listView.handleTap(staleListRow));
+    Test.assertEqual("today", controller.mode);
+    Test.assert(!controller.confirmingCompletion);
+
+    var taskView = routeView(controller, FENIX_SIZE);
+    var staleTaskRow = centerOf(taskView.rowBounds[0]);
+    controller.mode = "lists";
+    controller.projects = [{"id" => "project-1", "name" => "First"}];
+    Test.assert(taskView.handleTap(staleTaskRow));
+    Test.assertEqual("lists", controller.mode);
+    Test.assert(!controller.confirmingCompletion);
+    Test.assert(controller.relay.lastAction == null);
+    return true;
+}
+
+(:test)
+function staleSameKindBoundsNeverTargetAReplacementItem(logger as Test.Logger) as Boolean {
+    var controller = routeController(1);
+    controller.selected = 0;
+    var taskView = routeView(controller, FENIX_SIZE);
+    var staleTaskNode = centerOf(taskView.nodeBounds[0]);
+    controller.tasks = [{"id" => "replacement-task", "projectId" => "project-1", "title" => "Replacement"}];
+    Test.assert(taskView.handleTap(staleTaskNode));
+    Test.assert(!controller.confirmingCompletion);
+
+    controller.mode = "lists";
+    controller.projects = [{"id" => "list-a", "name" => "List A"}];
+    var listView = routeView(controller, FENIX_SIZE);
+    var staleListRow = centerOf(listView.rowBounds[0]);
+    controller.projects = [{"id" => "list-b", "name" => "List B"}];
+    Test.assert(listView.handleTap(staleListRow));
+    Test.assertEqual("lists", controller.mode);
+    Test.assert(controller.projectId == null);
+    Test.assert(controller.relay.lastAction == null);
+    return true;
+}
+
+(:test)
+function listDrilldownSupersedesBusyRefreshAndFetchesSelectedTasks(logger as Test.Logger) as Boolean {
+    var controller = routeController(0);
+    controller.mode = "lists";
+    controller.projects = [{"id" => "list-a", "name" => "List A"}];
+    controller.busy = true;
+    controller.pendingViewMode = "lists";
+    controller.pendingProjectId = null;
+    controller.pendingAppend = false;
+    var view = routeView(controller, FENIX_SIZE);
+    Test.assert(view.handleTap(centerOf(view.rowBounds[0])));
+    Test.assertEqual("project", controller.mode);
+    Test.assertEqual("list-a", controller.projectId);
+    controller.onProjects(200, {"ok" => true, "data" => {"projects" => [{"id" => "list-a", "name" => "List A"}]}});
+    Test.assertEqual("project", controller.mode);
+    Test.assertEqual("project", controller.relay.lastView);
+    Test.assertEqual("list-a", controller.relay.lastProjectId);
+    Test.assert(controller.busy);
+    return true;
+}
+
+(:test)
+function physicalSelectShowsBusyListDrilldownImmediately(logger as Test.Logger) as Boolean {
+    var controller = new UpdateTrackingController();
+    controller.store.unpair();
+    controller.store = new PairedTestStore();
+    controller.relay = new NoopRelay();
+    controller.mode = "lists";
+    controller.projects = [{"id" => "list-a", "name" => "List A"}];
+    controller.busy = true;
+    controller.pendingViewMode = "lists";
+    var view = routeView(controller, FENIX_SIZE);
+    var delegate = new TaskListDelegate(controller, view);
+
+    Test.assert(delegate.onSelect());
+    Test.assertEqual("project", controller.mode);
+    Test.assertEqual("switching_view", controller.status);
+    Test.assertEqual(1, controller.updateRequests);
+    Test.assertEqual(0, controller.tasks.size());
+    return true;
+}
+
+(:test)
+function longTaskAndListNamesKeepGeometryIsolated(logger as Test.Logger) as Boolean {
+    var controller = routeController(0);
+    var longName = "A deliberately very long TickTick title that must truncate before reaching another stop or the bottom navigation band";
+    controller.tasks = [
+        {"id" => "long-1", "projectId" => "project-1", "title" => longName, "dueDate" => "2026-08-10T23:59:00+0100"},
+        {"id" => "long-2", "projectId" => "project-1", "title" => longName + " two"},
+        {"id" => "long-3", "projectId" => "project-1", "title" => longName + " three"}
+    ];
+    var taskView = routeView(controller, FENIX_SIZE);
+    Test.assertEqual(2, taskView.rowBounds.size());
+    for (var row = 0; row < taskView.rowBounds.size(); row += 1) {
+        Test.assert(!overlaps(taskView.rowBounds[row], taskView.navBounds[0]));
+        if (row > 0) {
+            Test.assert(!overlaps(taskView.rowBounds[row], taskView.rowBounds[row - 1]));
+        }
+    }
+
+    controller.mode = "lists";
+    controller.projects = [
+        {"id" => "project-1", "name" => longName},
+        {"id" => "project-2", "name" => longName + " two"},
+        {"id" => "project-3", "name" => longName + " three"}
+    ];
+    var listView = routeView(controller, FENIX_SIZE);
+    Test.assertEqual(3, listView.rowBounds.size());
+    for (var list = 0; list < listView.rowBounds.size(); list += 1) {
+        Test.assert(!overlaps(listView.rowBounds[list], listView.navBounds[2]));
+    }
+    return true;
+}
+
+(:test)
+function horizontalNavigationCyclesOnlyVisibleDestinationsAndProjectBackReturnsToLists(logger as Test.Logger) as Boolean {
+    var controller = routeController(2);
+    controller.cyclePrimary(1);
+    Test.assertEqual("inbox", controller.mode);
+    controller.busy = false;
+    controller.cyclePrimary(-1);
+    Test.assertEqual("today", controller.mode);
+
+    controller.busy = false;
+    controller.mode = "project";
+    controller.projectId = "project-1";
+    controller.projectName = "First";
+    Test.assert(controller.goBack());
+    Test.assertEqual("lists", controller.mode);
     return true;
 }

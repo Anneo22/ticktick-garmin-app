@@ -285,7 +285,9 @@ async function projects(request: Request, env: Env): Promise<Response> {
 function page(tasks: Task[], cursor: string | null): { tasks: Record<string, unknown>[]; cursor?: string; syncedAt: string } | null {
   const sorted = tasks
     .map(normalizeTask)
-    .filter((task): task is Record<string, unknown> & { id: string } => typeof task.id === "string" && isIdentifier(task.id));
+    .filter((task): task is Record<string, unknown> & { id: string; projectId: string } =>
+      typeof task.id === "string" && isIdentifier(task.id) &&
+      typeof task.projectId === "string" && isIdentifier(task.projectId));
   const cursorIndex = cursor === null ? -1 : sorted.findIndex((task) => task.id === cursor);
   if (cursor !== null && cursorIndex < 0) return null;
   const remaining = sorted.slice(cursorIndex + 1);
@@ -328,6 +330,21 @@ export function tasksForView(tasks: Task[], view: "today" | "overdue", utcOffset
   });
 }
 
+// TickTick's documented Open API exposes the user's lists but no named Inbox endpoint.
+// The all-open-task response still contains Inbox tasks. A task belongs to Inbox when its
+// projectId is absent from the complete project response. Official Task objects always carry a
+// projectId, including Inbox's internal list ID. Keep this derivation isolated so a
+// future official Inbox endpoint can replace it without changing the watch contract.
+export function tasksForInbox(tasks: Task[], projectPayload: unknown): Task[] | null {
+  if (!Array.isArray(projectPayload)) return null;
+  const projectIds = new Set<string>();
+  for (const project of projectPayload) {
+    if (typeof project !== "object" || project === null || !("id" in project) || typeof project.id !== "string") return null;
+    projectIds.add(project.id);
+  }
+  return tasks.filter((task) => typeof task.projectId === "string" && !projectIds.has(task.projectId));
+}
+
 async function tasks(request: Request, env: Env): Promise<Response> {
   const query = new URL(request.url).searchParams;
   const view = query.get("view");
@@ -336,21 +353,47 @@ async function tasks(request: Request, env: Env): Promise<Response> {
   let requestPayload: Record<string, unknown> | undefined;
   let dateView: "today" | "overdue" | null = null;
   let utcOffsetMinutes = 0;
-  if (view === "today" || view === "overdue") {
-    const offsetInput = query.get("utcOffsetMinutes");
-    utcOffsetMinutes = offsetInput !== null && /^-?\d{1,4}$/.test(offsetInput) ? Number(offsetInput) : Number.NaN;
-    if (!Number.isInteger(utcOffsetMinutes) || utcOffsetMinutes < -840 || utcOffsetMinutes > 840) return error("invalid_request");
-    path = "/task/filter";
-    method = "POST";
-    requestPayload = { status: [0] };
-    dateView = view;
+  if (view === "today" || view === "overdue" || view === "inbox") {
+    if (view === "inbox") {
+      path = "/task/filter";
+      method = "POST";
+      requestPayload = { status: [0] };
+    } else {
+      const offsetInput = query.get("utcOffsetMinutes");
+      utcOffsetMinutes = offsetInput !== null && /^-?\d{1,4}$/.test(offsetInput) ? Number(offsetInput) : Number.NaN;
+      if (!Number.isInteger(utcOffsetMinutes) || utcOffsetMinutes < -840 || utcOffsetMinutes > 840) return error("invalid_request");
+      path = "/task/filter";
+      method = "POST";
+      requestPayload = { status: [0] };
+      dateView = view;
+    }
   } else if (view === "project" && isIdentifier(query.get("projectId") ?? undefined)) {
     path = `/project/${encodeURIComponent(query.get("projectId")!)}/data`;
     method = "GET";
   }
   else return error("invalid_request");
+  const cursor = query.get("cursor");
+  if (cursor !== null && !isIdentifier(cursor)) return error("invalid_request");
   const authenticated = await session(request, env);
   if (authenticated instanceof Response) return authenticated;
+  if (view === "inbox") {
+    const [taskResponse, projectResponse] = await Promise.all([
+      tickTickRequest(env, authenticated.session, path, method, requestPayload),
+      tickTickRequest(env, authenticated.session, "/project", "GET"),
+    ]);
+    if ([taskResponse.status, projectResponse.status].some((status) => status === 401 || status === 403)) {
+      await expireSession(env, authenticated.session);
+      return error("authorization_expired", 401);
+    }
+    if (!taskResponse.ok || !projectResponse.ok) return error("temporarily_unavailable", 502);
+    const taskPayload = await taskResponse.json().catch(() => null);
+    const projectPayload = await projectResponse.json().catch(() => null);
+    const receivedTasks = taskList(taskPayload);
+    const inboxTasks = receivedTasks === null ? null : tasksForInbox(receivedTasks, projectPayload);
+    if (inboxTasks === null) return error("temporarily_unavailable", 502);
+    const resultPage = page(inboxTasks, cursor);
+    return resultPage ? json(resultPage) : error("cursor_stale", 409);
+  }
   const response = await tickTickRequest(env, authenticated.session, path, method, requestPayload);
   if (response.status === 401 || response.status === 403) {
     await expireSession(env, authenticated.session);
@@ -360,8 +403,6 @@ async function tasks(request: Request, env: Env): Promise<Response> {
   const responsePayload = await response.json().catch(() => null);
   const receivedTasks = taskList(responsePayload);
   if (receivedTasks === null) return error("temporarily_unavailable", 502);
-  const cursor = query.get("cursor");
-  if (cursor !== null && !isIdentifier(cursor)) return error("invalid_request");
   const resultPage = page(dateView === null ? receivedTasks : tasksForView(receivedTasks, dateView, utcOffsetMinutes), cursor);
   return resultPage ? json(resultPage) : error("cursor_stale", 409);
 }

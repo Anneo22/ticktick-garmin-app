@@ -23,12 +23,14 @@ class PairedTestStore {
 
 class NoopRelay {
     var lastView;
+    var lastProjectId;
     var lastCursor;
     var lastAction;
     var replayCount;
 
     function initialize() {
         lastView = null;
+        lastProjectId = null;
         lastCursor = null;
         lastAction = null;
         replayCount = 0;
@@ -36,6 +38,7 @@ class NoopRelay {
 
     function fetchTasks(view, projectId, utcOffsetMinutes, cursor, done) {
         lastView = view;
+        lastProjectId = projectId;
         lastCursor = cursor;
         return true;
     }
@@ -396,9 +399,9 @@ function laterProjectPageAppendsAndKeepsCursor(logger as Test.Logger) as Boolean
     var controller = new TaskController();
     controller.store.unpair();
     controller.store.setRelayToken("test-relay-token");
-    controller.mode = "projects";
+    controller.mode = "lists";
     controller.projects = [{"id" => "project-1", "name" => "First"}];
-    controller.pendingViewMode = "projects";
+    controller.pendingViewMode = "lists";
     controller.pendingProjectId = null;
     controller.pendingAppend = true;
     controller.busy = true;
@@ -437,10 +440,10 @@ function staleProjectCursorClearsAndRestartsFirstPage(logger as Test.Logger) as 
     controller.store.unpair();
     controller.store.setRelayToken("test-relay-token");
     controller.relay = new NoopRelay();
-    controller.mode = "projects";
+    controller.mode = "lists";
     controller.projects = [{"id" => "project-1", "name" => "Loaded"}];
     controller.nextCursor = "removed-anchor";
-    controller.pendingViewMode = "projects";
+    controller.pendingViewMode = "lists";
     controller.pendingProjectId = null;
     controller.pendingAppend = true;
     controller.busy = true;
@@ -474,6 +477,73 @@ function staleOverdueResponseCannotReplaceTodayCache(logger as Test.Logger) as B
     Test.assertEqual("today-1", controller.store.getTasks()[0]["id"]);
     Test.assertEqual("today-1", controller.tasks[0]["id"]);
     controller.store.unpair();
+    return true;
+}
+
+(:test)
+function inboxIsAFirstClassTaskScope(logger as Test.Logger) as Boolean {
+    var controller = new TaskController();
+    controller.store.unpair();
+    controller.store = new PairedTestStore();
+    controller.relay = new NoopRelay();
+    controller.setMode("inbox");
+    Test.assertEqual("inbox", controller.mode);
+    Test.assertEqual("inbox", controller.relay.lastView);
+    Test.assert(controller.busy);
+    return true;
+}
+
+(:test)
+function visibleNavigationCyclesFourScopesWithoutAccount(logger as Test.Logger) as Boolean {
+    var controller = new TaskController();
+    controller.store.unpair();
+    controller.store = new PairedTestStore();
+    controller.relay = new NoopRelay();
+    var modes = ["inbox", "overdue", "lists", "today"];
+    for (var index = 0; index < modes.size(); index += 1) {
+        controller.busy = false;
+        controller.cyclePrimary(1);
+        Test.assertEqual(modes[index], controller.mode);
+    }
+    return true;
+}
+
+(:test)
+function physicalMenuKeepsAccountAsFifthScope(logger as Test.Logger) as Boolean {
+    var controller = new TaskController();
+    controller.store.unpair();
+    controller.store = new PairedTestStore();
+    controller.relay = new NoopRelay();
+    var modes = ["inbox", "overdue", "lists", "account", "today"];
+    for (var index = 0; index < modes.size(); index += 1) {
+        controller.busy = false;
+        controller.cycleMode();
+        Test.assertEqual(modes[index], controller.mode);
+    }
+    return true;
+}
+
+(:test)
+function selectedListOpensTasksAndBackReturnsToLists(logger as Test.Logger) as Boolean {
+    var controller = new TaskController();
+    controller.store.unpair();
+    controller.store = new PairedTestStore();
+    controller.relay = new NoopRelay();
+    controller.mode = "lists";
+    controller.projects = [
+        {"id" => "project-1", "name" => "First"},
+        {"id" => "project-2", "name" => "Second"}
+    ];
+    controller.selected = 1;
+    controller.activate();
+    Test.assertEqual("project", controller.mode);
+    Test.assertEqual("project-2", controller.projectId);
+    Test.assertEqual("project", controller.relay.lastView);
+    Test.assertEqual("project-2", controller.relay.lastProjectId);
+    controller.busy = false;
+    Test.assert(controller.goBack());
+    Test.assertEqual("lists", controller.mode);
+    Test.assertEqual("projects", controller.relay.lastView);
     return true;
 }
 

@@ -45,9 +45,13 @@ class TaskListDelegate extends Ui.BehaviorDelegate {
         } else if (direction == Ui.SWIPE_DOWN) {
             controller.move(-1);
         } else if (direction == Ui.SWIPE_LEFT) {
-            controller.cycleMode();
+            controller.cyclePrimary(1);
         } else if (direction == Ui.SWIPE_RIGHT) {
-            controller.goBack();
+            if (controller.mode.equals("project")) {
+                controller.goBack();
+            } else {
+                controller.cyclePrimary(-1);
+            }
         }
         return true;
     }

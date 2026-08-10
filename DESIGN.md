@@ -6,7 +6,7 @@ colors:
   text: "#D4D4D4"
   coral: "#FD4E5A"
   klein: "#5A5CF5"
-  muted: "#888888"
+  muted: "#A0A0A0"
   hairline: "#666666"
 typography:
   body:
@@ -37,9 +37,9 @@ TickTick Tasks uses one visual idea across the watch, pairing site, launcher ico
 | --- | --- | --- |
 | Surface | `#1A1A1A` | AMOLED background and icon field |
 | Text | `#D4D4D4` | Primary copy |
-| Coral | `#FD4E5A` | Selected stop and primary action |
-| Klein | `#5A5CF5` | Status dot and active-view underline |
-| Muted | `#888888` | Secondary task and status copy |
+| Coral | `#FD4E5A` | Confirmation and primary action |
+| Klein | `#5A5CF5` | Current stop, status dot, and active-view underline |
+| Muted | `#A0A0A0` | Secondary task and status copy |
 | Hairline | `#666666` | Route and row separation |
 
 Low-colour watches use Garmin's black, white, and light-grey device palette.
@@ -49,7 +49,9 @@ Low-colour watches use Garmin's black, white, and light-grey device palette.
 - A task-row tap selects only. Retapping it does nothing destructive.
 - Only the separate stop node can arm completion on touch watches.
 - A separate, full-width confirmation action completes the task.
-- Today, Late, and Lists have isolated navigation bounds. MENU cycles the same views.
+- Today, Inbox, Overdue, and Lists have isolated navigation bounds. Fenix-class wide screens show all four together; mid-size colour screens show three at a time, while swipes and watch buttons cycle the same four destinations.
+- Lists opens TickTick's lists. A tap anywhere on a list row opens its tasks, and a right swipe returns to Lists.
+- MENU cycles the four task destinations and Account. Account stays off the visible band so it does not compete with daily navigation.
 - Navigation and safe selection remain responsive during sync and always cancel an armed action.
 - Pairing is the only full-screen touch target because it is non-destructive and idempotent.
 - Compact watches keep the button-first list and show `MENU views` as a visible footer.
@@ -58,7 +60,7 @@ Low-colour watches use Garmin's black, white, and light-grey device palette.
 
 ## Responsive behaviour
 
-Screens at or below 280 px in either dimension use the compact layout. Larger screens show the route spine, a completion gutter up to 72 px wide, and a 64 px confirmation button. Lists longer than three items show the current position and total count.
+Screens at or below 280 px in either dimension use the compact layout. Larger screens show the route spine, a completion gutter up to 72 px wide, and a 64 px confirmation button. Colour task views show two spacious two-line rows; the widest screens use a third row only for single-line Lists. More items scroll with the current selection. Long task and list names stay on one fitted line, with due information on its own line when present.
 
 ## Public surface
 

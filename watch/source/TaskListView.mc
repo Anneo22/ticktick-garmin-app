@@ -3,7 +3,7 @@ using Toybox.WatchUi as Ui;
 
 // Direction contract (concept seed d39802f1).
 // Route stops, not generic cards: the list is a single vertical spine whose stops are tasks.
-// Isolated navigation: Today/Overdue/Projects own their own bounds at the foot of the screen
+// Isolated navigation: Today/Inbox/Overdue/Lists own their own bounds at the foot of the screen
 //   and can never overlap a stop, so a navigation tap can never touch a task.
 // Deliberate two-step completion: only the selected stop's completion node arms, and only a
 //   separate confirm action completes. A row tap selects; a retap of the selected row does nothing.
@@ -14,7 +14,7 @@ class TaskListView extends Ui.View {
     const KLEIN = 0x5A5CF5;
     const SURFACE = 0x1A1A1A;
     const TEXT = 0xD4D4D4;
-    const MUTED = 0x888888;
+    const MUTED = 0xA0A0A0;
     const HAIRLINE = 0x666666;
     const VISIBLE = 3;
 
@@ -30,6 +30,7 @@ class TaskListView extends Ui.View {
     var rowHeight;
     var titleHeight;
     var bodyHeight;
+    var visibleRows;
 
     function initialize(taskController) {
         View.initialize();
@@ -45,6 +46,7 @@ class TaskListView extends Ui.View {
         rowHeight = 0;
         titleHeight = 0;
         bodyHeight = 0;
+        visibleRows = VISIBLE;
     }
 
     function onShow() {
@@ -54,11 +56,14 @@ class TaskListView extends Ui.View {
     }
 
     function modeTitle() {
+        if (controller.mode.equals("inbox")) {
+            return "Inbox";
+        }
         if (controller.mode.equals("overdue")) {
             return "Overdue";
         }
-        if (controller.mode.equals("projects")) {
-            return "Projects";
+        if (controller.mode.equals("lists")) {
+            return "Lists";
         }
         if (controller.mode.equals("project")) {
             return controller.projectName instanceof String ? controller.projectName : "Project";
@@ -161,7 +166,7 @@ class TaskListView extends Ui.View {
             if (task["isAllDay"] == true || due.length() < 16) {
                 return "All day";
             }
-            return due.substring(11, 16);
+            return "At " + due.substring(11, 16);
         }
         return "Due  " + due.substring(5, 10);
     }
@@ -180,7 +185,7 @@ class TaskListView extends Ui.View {
         listTop = 0;
         rowHeight = 0;
         var compact = isCompactSize(width, height);
-        listTop = headerTop(height, compact) + titleHeight + bodyHeight + (compact ? 4 : 12);
+        listTop = headerTop(height, compact) + titleHeight + bodyHeight + (compact ? 4 : 8);
         if (!controller.isPaired()) {
             setAction("pair", width, height - (compact ? 44 : 96), compact);
             return;
@@ -196,19 +201,22 @@ class TaskListView extends Ui.View {
         }
         layoutRoute(width, height, compact);
         if (controller.activeItems().size() == 0 && !controller.busy) {
-            var actionY = navBounds[0][1] - (compact ? 34 : 58);
+            var actionY = navBounds[0][1] - (compact ? 34 : 72);
             setAction("refresh", width, actionY, compact);
         }
     }
 
     function layoutRoute(width, height, compact) {
-        var navHeight = compact ? bodyHeight + 4 : 58;
+        var navHeight = compact ? bodyHeight + 4 : 60;
         // The navigation sits well clear of the bottom bezel, and inside a narrower band than the
         // rows, so a round screen never clips the outer labels.
-        var navTop = height - navHeight - (compact ? 2 : height / 8);
-        rowHeight = (navTop - listTop) / VISIBLE;
-        if (rowHeight > 86) {
-            rowHeight = 86;
+        var navTop = height - navHeight - (compact ? 2 : height / 7 + 12);
+        // Two-line task rows need breathing room on every round colour display. Lists remain
+        // single-line and can use a third row on the widest watches.
+        visibleRows = compact ? VISIBLE : (controller.mode.equals("lists") && width >= 440 ? VISIBLE : 2);
+        rowHeight = (navTop - listTop) / visibleRows;
+        if (rowHeight > 78) {
+            rowHeight = 78;
         }
         if (rowHeight < 28) {
             rowHeight = 28;
@@ -225,22 +233,25 @@ class TaskListView extends Ui.View {
         var right = compact ? width - 6 : width - width / 9;
         var items = controller.activeItems();
         var start = controller.selected - 1;
-        if (start > items.size() - VISIBLE) {
-            start = items.size() - VISIBLE;
+        if (start > items.size() - visibleRows) {
+            start = items.size() - visibleRows;
         }
         if (start < 0) {
             start = 0;
         }
-        for (var row = 0; row < VISIBLE && start + row < items.size(); row += 1) {
+        for (var row = 0; row < visibleRows && start + row < items.size(); row += 1) {
             var index = start + row;
             var y = listTop + row * rowHeight;
-            rowBounds.add([left, y, right - left, rowHeight, index]);
+            var itemKind = controller.mode.equals("lists") ? "list" : "task";
+            var itemId = items[index]["id"];
+            rowBounds.add([left, y, right - left, rowHeight, index, itemKind, itemId]);
             if (!compact) {
-                nodeBounds.add([nodeCenter - nodeSize / 2, y + rowHeight / 2 - nodeSize / 2, nodeSize, nodeSize, index]);
+                nodeBounds.add([nodeCenter - nodeSize / 2, y + rowHeight / 2 - nodeSize / 2, nodeSize, nodeSize, index, itemKind, itemId]);
             }
         }
-        var navLeft = compact ? 0 : width / 5;
-        var names = compact ? ["cycle"] : ["today", "overdue", "projects"];
+        var wide = !compact && width >= 400;
+        var navLeft = compact ? 0 : width / 10;
+        var names = compact ? ["cycle"] : (wide ? ["today", "inbox", "overdue", "lists"] : (controller.primaryModeIndex(controller.mode) >= 2 ? ["inbox", "overdue", "lists"] : ["today", "inbox", "overdue"]));
         var cellWidth = (width - navLeft * 2) / names.size();
         for (var cell = 0; cell < names.size(); cell += 1) {
             navBounds.add([navLeft + cell * cellWidth, navTop, cellWidth, navHeight, names[cell]]);
@@ -248,7 +259,7 @@ class TaskListView extends Ui.View {
     }
 
     function headerTop(height, compact) {
-        return compact ? 8 : height / 12;
+        return compact ? 8 : height / 14;
     }
 
     function actionButtonBounds(width, y, compact) {
@@ -287,7 +298,7 @@ class TaskListView extends Ui.View {
         for (var nav = 0; nav < navBounds.size(); nav += 1) {
             if (contains(navBounds[nav], x, y)) {
                 if (navBounds[nav][4].equals("cycle")) {
-                    controller.cycleMode();
+                    controller.cyclePrimary(1);
                 } else {
                     controller.setMode(navBounds[nav][4]);
                 }
@@ -305,13 +316,19 @@ class TaskListView extends Ui.View {
         // The completion node is the only tap that can arm, and only on the already selected stop.
         for (var node = 0; node < nodeBounds.size(); node += 1) {
             if (contains(nodeBounds[node], x, y)) {
-                return tapNode(nodeBounds[node][4]);
+                return tapNode(nodeBounds[node][4], nodeBounds[node][5], nodeBounds[node][6]);
             }
         }
         // A row tap selects. Retapping the selected row changes nothing.
         for (var row = 0; row < rowBounds.size(); row += 1) {
             if (contains(rowBounds[row], x, y)) {
+                if (!itemMatches(rowBounds[row][4], rowBounds[row][5], rowBounds[row][6])) {
+                    return true;
+                }
                 controller.select(rowBounds[row][4]);
+                if (rowBounds[row][5].equals("list")) {
+                    controller.activate();
+                }
                 return true;
             }
         }
@@ -358,13 +375,27 @@ class TaskListView extends Ui.View {
         }
     }
 
-    function tapNode(index) {
-        if (index != controller.selected) {
-            controller.select(index);
+    function itemMatches(index, itemKind, itemId) {
+        var currentKind = controller.mode.equals("lists") ? "list" : "task";
+        var items = controller.activeItems();
+        if (!itemKind.equals(currentKind) || index < 0 || index >= items.size()) {
+            return false;
+        }
+        var currentId = items[index]["id"];
+        return itemId instanceof String && currentId instanceof String && itemId.equals(currentId);
+    }
+
+    function tapNode(index, itemKind, itemId) {
+        if (!itemMatches(index, itemKind, itemId)) {
             return true;
         }
-        if (controller.mode.equals("projects")) {
+        if (itemKind.equals("list")) {
+            controller.select(index);
             controller.activate();
+            return true;
+        }
+        if (index != controller.selected) {
+            controller.select(index);
             return true;
         }
         controller.armCompletion();
@@ -420,7 +451,8 @@ class TaskListView extends Ui.View {
         dc.drawText(width / 2, top, titleFont, fitText(dc, modeTitle(), titleFont, width - (compact ? 46 : width / 4)), Gfx.TEXT_JUSTIFY_CENTER);
 
         var statusY = top + titleHeight + (compact ? 1 : 2);
-        var fitted = fitText(dc, statusLabel(), Gfx.FONT_XTINY, width - (compact ? 24 : width / 4));
+        var statusText = statusLabel();
+        var fitted = fitText(dc, statusText, Gfx.FONT_XTINY, width - (compact ? 24 : width / 4));
         dc.setColor(statusColor(compact), Gfx.COLOR_TRANSPARENT);
         if (!compact) {
             dc.setColor(KLEIN, Gfx.COLOR_TRANSPARENT);
@@ -428,23 +460,29 @@ class TaskListView extends Ui.View {
             dc.setColor(statusColor(compact), Gfx.COLOR_TRANSPARENT);
         }
         dc.drawText(width / 2 + (compact ? 0 : 5), statusY, Gfx.FONT_XTINY, fitted, Gfx.TEXT_JUSTIFY_CENTER);
-        var itemCount = controller.activeItems().size();
-        if (!compact && itemCount > VISIBLE) {
-            dc.setColor(MUTED, Gfx.COLOR_TRANSPARENT);
-            dc.drawText(width - width / 7, statusY, Gfx.FONT_XTINY, (controller.selected + 1).format("%d") + "/" + itemCount.format("%d"), Gfx.TEXT_JUSTIFY_CENTER);
-        }
     }
 
-    // A route, not a stack of cards: one spine, one stop per task, the selected stop lit.
+    function drawFolderMark(dc, centerX, centerY) {
+        dc.drawLine(centerX - 10, centerY - 7, centerX - 3, centerY - 7);
+        dc.drawLine(centerX - 3, centerY - 7, centerX, centerY - 3);
+        dc.drawLine(centerX, centerY - 3, centerX + 10, centerY - 3);
+        dc.drawLine(centerX + 10, centerY - 3, centerX + 10, centerY + 8);
+        dc.drawLine(centerX + 10, centerY + 8, centerX - 10, centerY + 8);
+        dc.drawLine(centerX - 10, centerY + 8, centerX - 10, centerY - 7);
+    }
+
+    // A route, not a stack of cards: one spine, one stop per task, the selected action lit.
     function drawRoute(dc) {
         var items = controller.activeItems();
-        var isProjects = controller.mode.equals("projects");
+        var isLists = controller.mode.equals("lists");
         var spineX = nodeBounds[0][0] + nodeBounds[0][2] / 2;
         var firstY = nodeBounds[0][1] + nodeBounds[0][3] / 2;
         var lastNode = nodeBounds[nodeBounds.size() - 1];
-        dc.setColor(HAIRLINE, Gfx.COLOR_TRANSPARENT);
-        dc.setPenWidth(2);
-        dc.drawLine(spineX, firstY, spineX, lastNode[1] + lastNode[3] / 2);
+        if (!isLists) {
+            dc.setColor(HAIRLINE, Gfx.COLOR_TRANSPARENT);
+            dc.setPenWidth(2);
+            dc.drawLine(spineX, firstY, spineX, lastNode[1] + lastNode[3] / 2);
+        }
 
         for (var row = 0; row < rowBounds.size(); row += 1) {
             var bounds = rowBounds[row];
@@ -454,9 +492,12 @@ class TaskListView extends Ui.View {
             var node = nodeBounds[row];
             var centerY = node[1] + node[3] / 2;
 
-            if (selected && row > 0) {
-                dc.setColor(CORAL, Gfx.COLOR_TRANSPARENT);
-                dc.drawLine(spineX, rowBounds[row - 1][1] + rowBounds[row - 1][3] / 2, spineX, centerY);
+            if (!isLists && selected && row > 0) {
+                dc.setColor(KLEIN, Gfx.COLOR_TRANSPARENT);
+                var previousNode = nodeBounds[row - 1];
+                var previousBottom = previousNode[1] + previousNode[3] - 4;
+                var currentTop = node[1] + 4;
+                dc.drawLine(spineX, previousBottom, spineX, currentTop);
             }
             if (row + 1 < rowBounds.size()) {
                 dc.setColor(HAIRLINE, Gfx.COLOR_TRANSPARENT);
@@ -467,21 +508,24 @@ class TaskListView extends Ui.View {
 
             dc.setColor(SURFACE, Gfx.COLOR_TRANSPARENT);
             dc.fillCircle(spineX, centerY, node[2] / 2 - 4);
-            dc.setColor(selected ? CORAL : MUTED, Gfx.COLOR_TRANSPARENT);
-            if (isProjects) {
-                dc.drawText(spineX, centerY - bodyHeight / 2, Gfx.FONT_XTINY, ">", Gfx.TEXT_JUSTIFY_CENTER);
+            dc.setColor(!isLists && selected ? KLEIN : MUTED, Gfx.COLOR_TRANSPARENT);
+            if (isLists) {
+                drawFolderMark(dc, spineX, centerY);
             } else {
                 dc.drawCircle(spineX, centerY, node[2] / 2 - 7);
-                if (selected) {
-                    dc.fillCircle(spineX, centerY, 5);
-                }
             }
 
-            var label = isProjects ? item["name"] : item["title"];
-            var due = isProjects ? null : dueLabel(item);
+            var label = isLists ? item["name"] : item["title"];
+            var due = isLists ? null : dueLabel(item);
             var textX = bounds[0];
             var textWidth = bounds[2];
             var textY = due == null ? centerY - bodyHeight / 2 : bounds[1] + (bounds[3] - bodyHeight * 2) / 2;
+            if (selected) {
+                dc.setColor(KLEIN, Gfx.COLOR_TRANSPARENT);
+                dc.drawText(textX, textY, Gfx.FONT_XTINY, ">", Gfx.TEXT_JUSTIFY_LEFT);
+                textX += 18;
+                textWidth -= 18;
+            }
             dc.setColor(selected ? TEXT : MUTED, Gfx.COLOR_TRANSPARENT);
             dc.drawText(textX, textY, Gfx.FONT_XTINY, fitText(dc, label, Gfx.FONT_XTINY, textWidth), Gfx.TEXT_JUSTIFY_LEFT);
             if (due != null) {
@@ -493,20 +537,72 @@ class TaskListView extends Ui.View {
     }
 
     function navLabel(name) {
-        if (name.equals("overdue")) {
-            return "Late";
+        if (name.equals("inbox")) {
+            return "Inbox";
         }
-        return name.equals("projects") ? "Lists" : "Today";
+        if (name.equals("overdue")) {
+            return "Overdue";
+        }
+        return name.equals("lists") ? "Lists" : "Today";
     }
 
     function navActive(name) {
-        if (name.equals("projects")) {
-            return controller.mode.equals("projects") || controller.mode.equals("project");
+        if (name.equals("lists")) {
+            return controller.mode.equals("lists") || controller.mode.equals("project");
         }
         return controller.mode.equals(name);
     }
 
+    function drawNavIcon(dc, name, centerX, centerY) {
+        if (name.equals("today")) {
+            dc.drawRoundedRectangle(centerX - 10, centerY - 8, 20, 18, 3);
+            dc.drawLine(centerX - 6, centerY - 11, centerX - 6, centerY - 5);
+            dc.drawLine(centerX + 6, centerY - 11, centerX + 6, centerY - 5);
+            dc.drawLine(centerX - 9, centerY - 2, centerX + 9, centerY - 2);
+            return;
+        }
+        if (name.equals("inbox")) {
+            dc.drawLine(centerX - 11, centerY - 8, centerX - 11, centerY + 8);
+            dc.drawLine(centerX - 11, centerY + 8, centerX + 11, centerY + 8);
+            dc.drawLine(centerX + 11, centerY + 8, centerX + 11, centerY - 8);
+            dc.drawLine(centerX - 11, centerY - 8, centerX - 4, centerY - 8);
+            dc.drawLine(centerX + 4, centerY - 8, centerX + 11, centerY - 8);
+            dc.drawLine(centerX - 4, centerY - 8, centerX, centerY - 3);
+            dc.drawLine(centerX, centerY - 3, centerX + 4, centerY - 8);
+            return;
+        }
+        if (name.equals("overdue")) {
+            dc.drawCircle(centerX, centerY, 10);
+            dc.drawLine(centerX, centerY, centerX, centerY - 6);
+            dc.drawLine(centerX, centerY, centerX + 5, centerY + 3);
+            return;
+        }
+        dc.drawLine(centerX - 11, centerY - 7, centerX - 3, centerY - 7);
+        dc.drawLine(centerX - 3, centerY - 7, centerX, centerY - 3);
+        dc.drawLine(centerX, centerY - 3, centerX + 11, centerY - 3);
+        dc.drawLine(centerX + 11, centerY - 3, centerX + 11, centerY + 9);
+        dc.drawLine(centerX + 11, centerY + 9, centerX - 11, centerY + 9);
+        dc.drawLine(centerX - 11, centerY + 9, centerX - 11, centerY - 7);
+    }
+
     function drawNavigation(dc) {
+        var wideBand = navBounds.size() == 4;
+        if (navBounds.size() == 3) {
+            var cueY = navBounds[0][1] + 25;
+            dc.setColor(MUTED, Gfx.COLOR_TRANSPARENT);
+            if (!navBounds[0][4].equals("today")) {
+                var leftCue = navBounds[0][0] + 8;
+                dc.drawLine(leftCue, cueY, leftCue + 8, cueY);
+                dc.drawLine(leftCue, cueY, leftCue + 5, cueY - 5);
+                dc.drawLine(leftCue, cueY, leftCue + 5, cueY + 5);
+            }
+            if (!navBounds[navBounds.size() - 1][4].equals("lists")) {
+                var rightCue = navBounds[navBounds.size() - 1][0] + navBounds[navBounds.size() - 1][2] - 8;
+                dc.drawLine(rightCue - 8, cueY, rightCue, cueY);
+                dc.drawLine(rightCue, cueY, rightCue - 5, cueY - 5);
+                dc.drawLine(rightCue, cueY, rightCue - 5, cueY + 5);
+            }
+        }
         for (var cell = 0; cell < navBounds.size(); cell += 1) {
             var bounds = navBounds[cell];
             var name = bounds[4];
@@ -515,11 +611,17 @@ class TaskListView extends Ui.View {
             if (active) {
                 dc.setColor(KLEIN, Gfx.COLOR_TRANSPARENT);
                 dc.setPenWidth(3);
-                dc.drawLine(centerX - 16, bounds[1] + bounds[3] - 7, centerX + 16, bounds[1] + bounds[3] - 7);
+                dc.drawLine(centerX - 15, bounds[1], centerX + 15, bounds[1]);
                 dc.setPenWidth(1);
             }
-            dc.setColor(active ? TEXT : MUTED, Gfx.COLOR_TRANSPARENT);
-            dc.drawText(centerX, bounds[1] + bounds[3] - bodyHeight - 2, Gfx.FONT_XTINY, navLabel(name), Gfx.TEXT_JUSTIFY_CENTER);
+            dc.setColor(active ? KLEIN : MUTED, Gfx.COLOR_TRANSPARENT);
+            dc.setPenWidth(2);
+            drawNavIcon(dc, name, centerX, bounds[1] + (wideBand ? 18 : 25));
+            dc.setPenWidth(1);
+            if (!wideBand || active) {
+                dc.setColor(active ? TEXT : MUTED, Gfx.COLOR_TRANSPARENT);
+                dc.drawText(centerX, bounds[1] + bounds[3] - bodyHeight - 1, Gfx.FONT_XTINY, navLabel(name), Gfx.TEXT_JUSTIFY_CENTER);
+            }
         }
     }
 
@@ -529,7 +631,7 @@ class TaskListView extends Ui.View {
             var bounds = rowBounds[row];
             var index = bounds[4];
             var item = items[index];
-            var label = controller.mode.equals("projects") ? item["name"] : item["title"];
+            var label = controller.mode.equals("lists") ? item["name"] : item["title"];
             dc.setColor(index == controller.selected ? Gfx.COLOR_WHITE : Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
             dc.drawText(bounds[0], bounds[1], Gfx.FONT_XTINY, (index == controller.selected ? "> " : "  ") + fitText(dc, label, Gfx.FONT_XTINY, bounds[2] - 12), Gfx.TEXT_JUSTIFY_LEFT);
         }
@@ -539,7 +641,7 @@ class TaskListView extends Ui.View {
     function drawCompactNavigation(dc) {
         dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
         var footer = navBounds[0];
-        var label = "MENU views";
+        var label = "MENU " + navLabel(controller.mode.equals("project") ? "lists" : controller.mode);
         var itemCount = controller.activeItems().size();
         if (itemCount > VISIBLE) {
             label += "  " + (controller.selected + 1).format("%d") + "/" + itemCount.format("%d");
@@ -583,7 +685,8 @@ class TaskListView extends Ui.View {
 
     function drawEmpty(dc, compact) {
         dc.setColor(color(compact, TEXT, Gfx.COLOR_WHITE), Gfx.COLOR_TRANSPARENT);
-        var top = drawCenteredBlock(dc, compact, [controller.mode.equals("projects") ? "No projects" : "All clear"]);
+        var emptyLabel = controller.mode.equals("lists") ? "No lists" : (controller.mode.equals("inbox") ? "Inbox clear" : "All clear");
+        var top = drawCenteredBlock(dc, compact, [emptyLabel]);
         drawStopMark(dc, compact, top, false);
         drawActionButton(dc, compact, "REFRESH");
     }

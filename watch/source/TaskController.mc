@@ -71,7 +71,7 @@ class TaskController {
     }
 
     function activeItems() {
-        if (mode.equals("projects")) {
+        if (mode.equals("lists")) {
             return projects;
         }
         return mode.equals("account") ? [] : tasks;
@@ -117,7 +117,7 @@ class TaskController {
         if (busy || !isPaired() || reconciliationRequired || confirmingCompletion) {
             return;
         }
-        if (mode.equals("account") || mode.equals("projects")) {
+        if (mode.equals("account") || mode.equals("lists")) {
             return;
         }
         if (selected < 0 || selected >= tasks.size()) {
@@ -133,6 +133,12 @@ class TaskController {
     }
 
     function activate() {
+        // List drilldown is safe navigation. Let it supersede an in-flight list refresh; that
+        // stale response will be discarded and resume the selected project's refresh.
+        if (mode.equals("lists") && isPaired() && !reconciliationRequired) {
+            openSelectedProject();
+            return;
+        }
         if (busy) {
             return;
         }
@@ -151,10 +157,6 @@ class TaskController {
                 confirmingUnpair = true;
                 arm("confirm_unpair");
             }
-            return;
-        }
-        if (mode.equals("projects")) {
-            openSelectedProject();
             return;
         }
         if (confirmingCompletion) {
@@ -307,7 +309,7 @@ class TaskController {
         pendingProjectId = projectId;
         pendingAppend = false;
         requestUpdate();
-        if (mode.equals("projects")) {
+        if (mode.equals("lists")) {
             if (!relay.fetchProjects(null, method(:onProjects))) {
                 onProjects(-1, null);
             }
@@ -338,7 +340,7 @@ class TaskController {
         pendingViewMode = mode;
         pendingProjectId = projectId;
         pendingAppend = true;
-        if (mode.equals("projects")) {
+        if (mode.equals("lists")) {
             if (!relay.fetchProjects(nextCursor, method(:onProjects))) {
                 onProjects(-1, null);
             }
@@ -357,7 +359,7 @@ class TaskController {
         pendingViewMode = null;
         pendingProjectId = null;
         pendingAppend = false;
-        if (!mode.equals("projects")) {
+        if (!mode.equals("lists")) {
             resumeAfterStaleResponse();
             return;
         }
@@ -528,13 +530,56 @@ class TaskController {
         }
     }
 
+    function primaryModeIndex(name) {
+        if (name.equals("today")) {
+            return 0;
+        }
+        if (name.equals("inbox")) {
+            return 1;
+        }
+        if (name.equals("overdue")) {
+            return 2;
+        }
+        if (name.equals("lists") || name.equals("project")) {
+            return 3;
+        }
+        return -1;
+    }
+
+    function primaryModeAt(index) {
+        if (index == 1) {
+            return "inbox";
+        }
+        if (index == 2) {
+            return "overdue";
+        }
+        if (index == 3) {
+            return "lists";
+        }
+        return "today";
+    }
+
+    // Horizontal navigation cycles the four visible task destinations.
+    // Account remains the fifth physical MENU destination, outside the daily-navigation band.
+    function cyclePrimary(delta) {
+        disarm();
+        var index = primaryModeIndex(mode);
+        if (index < 0) {
+            setMode("today");
+            return;
+        }
+        setMode(primaryModeAt((index + delta + 4) % 4));
+    }
+
     function cycleMode() {
         disarm();
         if (mode.equals("today")) {
+            setMode("inbox");
+        } else if (mode.equals("inbox")) {
             setMode("overdue");
         } else if (mode.equals("overdue")) {
-            setMode("projects");
-        } else if (mode.equals("projects")) {
+            setMode("lists");
+        } else if (mode.equals("lists") || mode.equals("project")) {
             setMode("account");
         } else {
             setMode("today");
@@ -558,6 +603,8 @@ class TaskController {
         selected = 0;
         nextCursor = null;
         tasks = [];
+        status = "switching_view";
+        requestUpdate();
         refresh();
     }
 
@@ -566,7 +613,7 @@ class TaskController {
             return true;
         }
         if (mode.equals("project")) {
-            mode = "projects";
+            mode = "lists";
             projectId = null;
             projectName = null;
             selected = 0;
@@ -574,7 +621,7 @@ class TaskController {
             refresh();
             return true;
         }
-        if (mode.equals("projects") || mode.equals("overdue") || mode.equals("account")) {
+        if (mode.equals("lists") || mode.equals("inbox") || mode.equals("overdue") || mode.equals("account")) {
             mode = "today";
             projectId = null;
             projectName = null;
