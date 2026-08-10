@@ -196,10 +196,14 @@ function fenixUsesSpaciousReferenceGeometryWithoutChangingSmallerLayouts(logger 
     var controller = routeController(3);
     controller.tasks[0]["dueDate"] = "2026-08-10T18:30:00.000+0000";
     var fenix = routeView(controller, FENIX_SIZE);
-    Test.assertEqual(FENIX_SIZE - 60 - FENIX_SIZE / 10, fenix.navBounds[0][1]);
-    Test.assertEqual(FENIX_SIZE / 7, fenix.navBounds[0][0]);
-    Test.assertEqual(78, fenix.rowHeight);
-    Test.assertEqual(64, fenix.nodeBounds[0][2]);
+    Test.assertEqual(359, fenix.navBounds[0][1]);
+    Test.assertEqual(FENIX_SIZE * 31 / 160, fenix.navBounds[0][0]);
+    Test.assertEqual(124, fenix.listTop);
+    Test.assertEqual(74, fenix.rowHeight);
+    Test.assertEqual(48, fenix.nodeBounds[0][2]);
+    Test.assertEqual(FENIX_SIZE * 9 / 40, fenix.nodeBounds[0][0] + fenix.nodeBounds[0][2] / 2);
+    Test.assertEqual(FENIX_SIZE * 9 / 40 + 34, fenix.rowBounds[0][0]);
+    Test.assert(fenix.rowHeight >= fenix.taskHeight + fenix.bodyHeight + 10);
     Test.assert(fenix.rowBounds[2][1] + fenix.rowBounds[2][3] < fenix.navBounds[0][1]);
     Test.assert(fenix.nodeBounds[0][1] + fenix.nodeBounds[0][3] / 2 < fenix.rowBounds[0][1] + fenix.rowBounds[0][3] / 2);
 

@@ -13,6 +13,7 @@ class TaskListView extends Ui.View {
     const CORAL = 0xFD4E5A;
     const KLEIN = 0x5A5CF5;
     const SURFACE = 0x1A1A1A;
+    const REFERENCE_SURFACE = 0x080808;
     const TEXT = 0xD4D4D4;
     const MUTED = 0xA0A0A0;
     const HAIRLINE = 0x333333;
@@ -30,7 +31,13 @@ class TaskListView extends Ui.View {
     var rowHeight;
     var titleHeight;
     var bodyHeight;
+    var taskHeight;
     var visibleRows;
+    var titleFont;
+    var taskFont;
+    var metaFont;
+    var statusFont;
+    var navFont;
 
     function initialize(taskController) {
         View.initialize();
@@ -46,7 +53,13 @@ class TaskListView extends Ui.View {
         rowHeight = 0;
         titleHeight = 0;
         bodyHeight = 0;
+        taskHeight = 0;
         visibleRows = VISIBLE;
+        titleFont = Gfx.FONT_SMALL;
+        taskFont = Gfx.FONT_XTINY;
+        metaFont = Gfx.FONT_XTINY;
+        statusFont = Gfx.FONT_XTINY;
+        navFont = Gfx.FONT_XTINY;
     }
 
     function onShow() {
@@ -78,8 +91,58 @@ class TaskListView extends Ui.View {
         return width <= 280 || height <= 280;
     }
 
+    function isReferenceSize(width, height) {
+        return width >= 440 && height >= 440;
+    }
+
+    // The built-in Fenix fonts jump from too small to too large for the approved composition.
+    // Current AMOLED devices expose Garmin's vector Roboto face, which lets the reference layout
+    // use the intended scale without shipping a duplicate font. Every other watch keeps its
+    // existing built-in fonts.
+    function prepareFonts(width, height) {
+        titleFont = isCompactSize(width, height) ? Gfx.FONT_XTINY : Gfx.FONT_SMALL;
+        taskFont = Gfx.FONT_XTINY;
+        metaFont = Gfx.FONT_XTINY;
+        statusFont = Gfx.FONT_XTINY;
+        navFont = Gfx.FONT_XTINY;
+        if (!isReferenceSize(width, height) || !(Gfx has :getVectorFont)) {
+            return;
+        }
+        var candidate = Gfx.getVectorFont({:face => "RobotoRegular", :size => 34});
+        if (candidate != null) {
+            titleFont = candidate;
+        }
+        candidate = Gfx.getVectorFont({:face => "RobotoRegular", :size => 26});
+        if (candidate != null) {
+            taskFont = candidate;
+        }
+        candidate = Gfx.getVectorFont({:face => "RobotoRegular", :size => 23});
+        if (candidate != null) {
+            metaFont = candidate;
+        }
+        candidate = Gfx.getVectorFont({:face => "RobotoRegular", :size => 20});
+        if (candidate != null) {
+            statusFont = candidate;
+        }
+        candidate = Gfx.getVectorFont({:face => "RobotoRegular", :size => 21});
+        if (candidate != null) {
+            navFont = candidate;
+        }
+    }
+
     function color(compact, rich, fallback) {
-        return compact ? fallback : rich;
+        if (compact) {
+            return fallback;
+        }
+        if (isReferenceSize(screenWidth, screenHeight)) {
+            if (rich == SURFACE) {
+                return REFERENCE_SURFACE;
+            }
+            if (rich == TEXT) {
+                return Gfx.COLOR_WHITE;
+            }
+        }
+        return rich;
     }
 
     function statusLabel() {
@@ -180,6 +243,7 @@ class TaskListView extends Ui.View {
         screenHeight = height;
         titleHeight = titleFontHeight;
         bodyHeight = bodyFontHeight;
+        taskHeight = isReferenceSize(width, height) ? 30 : bodyFontHeight;
         rowBounds = [];
         nodeBounds = [];
         navBounds = [];
@@ -188,7 +252,7 @@ class TaskListView extends Ui.View {
         listTop = 0;
         rowHeight = 0;
         var compact = isCompactSize(width, height);
-        listTop = headerTop(height, compact) + titleHeight + bodyHeight + (compact ? 4 : 8);
+        listTop = isReferenceSize(width, height) ? 124 : headerTop(height, compact) + titleHeight + bodyHeight + (compact ? 4 : 8);
         if (!controller.isPaired()) {
             setAction("pair", width, height - (compact ? 44 : 96), compact);
             return;
@@ -210,32 +274,32 @@ class TaskListView extends Ui.View {
     }
 
     function layoutRoute(width, height, compact) {
-        var navHeight = compact ? bodyHeight + 4 : 60;
-        var spacious = !compact && width >= 440 && height >= 440;
-        // Wide AMOLED watches follow the approved Fenix composition and use the lower tenth of
-        // the display as their bezel-safe inset. Smaller watches retain their tighter own layout.
-        var bottomInset = compact ? 2 : (spacious ? height / 10 : height / 7 + 12);
+        var spacious = !compact && isReferenceSize(width, height);
+        var navHeight = compact ? bodyHeight + 4 : (spacious ? 62 : 60);
+        // The Fenix reference reserves one clean band below the route. Smaller watches retain
+        // their tighter own layout instead of inheriting these display-specific coordinates.
+        var bottomInset = compact ? 2 : (spacious ? 33 : height / 7 + 12);
         var navTop = height - navHeight - bottomInset;
         // The approved Fenix composition is a three-stop route. Smaller colour screens step down
         // to two rows; compact watches keep the existing button-first list.
         visibleRows = compact ? VISIBLE : (width >= 440 ? VISIBLE : 2);
-        rowHeight = (navTop - listTop) / visibleRows;
+        rowHeight = spacious ? 74 : (navTop - listTop) / visibleRows;
         if (rowHeight > 78) {
             rowHeight = 78;
         }
         if (rowHeight < 28) {
             rowHeight = 28;
         }
-        var nodeSize = compact ? 0 : rowHeight - 8;
+        var nodeSize = compact ? 0 : (spacious ? 48 : rowHeight - 8);
         if (nodeSize > 64) {
             nodeSize = 64;
         }
         if (!compact && nodeSize < 44) {
             nodeSize = 44;
         }
-        var nodeCenter = width / 7;
-        var left = compact ? 6 : nodeCenter + nodeSize / 2 + 8;
-        var right = compact ? width - 6 : width - width / 9;
+        var nodeCenter = spacious ? width * 9 / 40 : width / 7;
+        var left = compact ? 6 : nodeCenter + nodeSize / 2 + (spacious ? 10 : 8);
+        var right = compact ? width - 6 : (spacious ? width * 5 / 6 : width - width / 9);
         var items = controller.activeItems();
         var start = controller.selected - 1;
         if (start > items.size() - visibleRows) {
@@ -251,8 +315,8 @@ class TaskListView extends Ui.View {
             var itemId = items[index]["id"];
             rowBounds.add([left, y, right - left, rowHeight, index, itemKind, itemId]);
             if (!compact) {
-                var nodeY = y + rowHeight / 2;
-                if (itemKind.equals("task") && dueLabel(items[index]) != null) {
+                var nodeY = spacious ? y + 22 : y + rowHeight / 2;
+                if (!spacious && itemKind.equals("task") && dueLabel(items[index]) != null) {
                     // The reference aligns each stop with its title, not midway between title and
                     // due time. The generous stored square remains the node's touch target.
                     nodeY = y + (rowHeight - bodyHeight) / 2;
@@ -260,11 +324,27 @@ class TaskListView extends Ui.View {
                 nodeBounds.add([nodeCenter - nodeSize / 2, nodeY - nodeSize / 2, nodeSize, nodeSize, index, itemKind, itemId]);
             }
         }
-        var navLeft = compact ? 0 : (spacious ? width / 7 : width / 10);
         var names = compact ? ["cycle"] : ["today", "inbox", "lists"];
-        var cellWidth = (width - navLeft * 2) / names.size();
+        var navStarts = [];
+        var navWidths = [];
+        if (spacious) {
+            // Keep the exact asymmetric centres from the approved Fenix composition.
+            // The cells remain contiguous, isolated touch targets; only their widths differ.
+            var firstLeft = width * 31 / 160;
+            var firstWidth = width * 33 / 160;
+            var secondWidth = width * 34 / 160;
+            navStarts = [firstLeft, firstLeft + firstWidth, firstLeft + firstWidth + secondWidth];
+            navWidths = [firstWidth, secondWidth, width * 36 / 160];
+        } else {
+            var navLeft = compact ? 0 : width / 10;
+            var cellWidth = (width - navLeft * 2) / names.size();
+            for (var index = 0; index < names.size(); index += 1) {
+                navStarts.add(navLeft + index * cellWidth);
+                navWidths.add(cellWidth);
+            }
+        }
         for (var cell = 0; cell < names.size(); cell += 1) {
-            navBounds.add([navLeft + cell * cellWidth, navTop, cellWidth, navHeight, names[cell]]);
+            navBounds.add([navStarts[cell], navTop, navWidths[cell], navHeight, names[cell]]);
         }
     }
 
@@ -272,7 +352,7 @@ class TaskListView extends Ui.View {
         if (compact) {
             return 8;
         }
-        return height >= 440 ? height / 30 : height / 14;
+        return height >= 440 ? 60 : height / 14;
     }
 
     function actionButtonBounds(width, y, compact) {
@@ -417,7 +497,7 @@ class TaskListView extends Ui.View {
 
     function onUpdate(dc) {
         var compact = isCompactSize(dc.getWidth(), dc.getHeight());
-        var titleFont = compact ? Gfx.FONT_XTINY : Gfx.FONT_SMALL;
+        prepareFonts(dc.getWidth(), dc.getHeight());
         layout(dc.getWidth(), dc.getHeight(), dc.getFontHeight(titleFont), dc.getFontHeight(Gfx.FONT_XTINY));
         dc.setColor(color(compact, TEXT, Gfx.COLOR_WHITE), color(compact, SURFACE, Gfx.COLOR_BLACK));
         dc.clear();
@@ -460,20 +540,19 @@ class TaskListView extends Ui.View {
         var width = dc.getWidth();
         var top = headerTop(dc.getHeight(), compact);
         var spacious = !compact && width >= 440 && dc.getHeight() >= 440;
-        var titleFont = compact ? Gfx.FONT_XTINY : Gfx.FONT_SMALL;
         dc.setColor(color(compact, TEXT, Gfx.COLOR_WHITE), Gfx.COLOR_TRANSPARENT);
         dc.drawText(width / 2, top, titleFont, fitText(dc, modeTitle(), titleFont, width - (compact ? 46 : width / 4)), Gfx.TEXT_JUSTIFY_CENTER);
 
-        var statusY = top + titleHeight + (compact ? 1 : (spacious ? -4 : 2));
+        var statusY = spacious ? 96 : top + titleHeight + (compact ? 1 : 2);
         var statusText = statusLabel();
-        var fitted = fitText(dc, statusText, Gfx.FONT_XTINY, width - (compact ? 24 : width / 4));
+        var fitted = fitText(dc, statusText, statusFont, width - (compact ? 24 : width / 4));
         dc.setColor(statusColor(compact), Gfx.COLOR_TRANSPARENT);
         if (!compact) {
             dc.setColor(KLEIN, Gfx.COLOR_TRANSPARENT);
-            dc.fillCircle(width / 2 - dc.getTextWidthInPixels(fitted, Gfx.FONT_XTINY) / 2 - 7, statusY + bodyHeight / 2, 3);
+            dc.fillCircle(width / 2 - dc.getTextWidthInPixels(fitted, statusFont) / 2 - 7, statusY + dc.getFontHeight(statusFont) / 2, 3);
             dc.setColor(statusColor(compact), Gfx.COLOR_TRANSPARENT);
         }
-        dc.drawText(width / 2 + (compact ? 0 : 5), statusY, Gfx.FONT_XTINY, fitted, Gfx.TEXT_JUSTIFY_CENTER);
+        dc.drawText(width / 2 + (compact ? 0 : 5), statusY, statusFont, fitted, Gfx.TEXT_JUSTIFY_CENTER);
     }
 
     function drawFolderMark(dc, centerX, centerY) {
@@ -514,19 +593,20 @@ class TaskListView extends Ui.View {
             if (row + 1 < rowBounds.size()) {
                 dc.setColor(HAIRLINE, Gfx.COLOR_TRANSPARENT);
                 dc.setPenWidth(1);
-                dc.drawLine(bounds[0], bounds[1] + bounds[3], bounds[0] + bounds[2], bounds[1] + bounds[3]);
+                var dividerY = bounds[1] + bounds[3] - (isReferenceSize(screenWidth, screenHeight) ? 3 : 0);
+                dc.drawLine(bounds[0], dividerY, bounds[0] + bounds[2], dividerY);
                 dc.setPenWidth(2);
             }
 
-            dc.setColor(SURFACE, Gfx.COLOR_TRANSPARENT);
-            dc.fillCircle(spineX, centerY, 12);
+            dc.setColor(color(false, SURFACE, Gfx.COLOR_BLACK), Gfx.COLOR_TRANSPARENT);
+            dc.fillCircle(spineX, centerY, isReferenceSize(screenWidth, screenHeight) ? 11 : 12);
             dc.setColor(selected ? CORAL : MUTED, Gfx.COLOR_TRANSPARENT);
             if (isLists) {
                 drawFolderMark(dc, spineX, centerY);
             } else {
-                dc.drawCircle(spineX, centerY, 11);
+                dc.drawCircle(spineX, centerY, isReferenceSize(screenWidth, screenHeight) ? 10 : 11);
                 if (selected) {
-                    dc.fillCircle(spineX, centerY, 6);
+                    dc.fillCircle(spineX, centerY, isReferenceSize(screenWidth, screenHeight) ? 5 : 6);
                 }
             }
 
@@ -534,12 +614,12 @@ class TaskListView extends Ui.View {
             var due = isLists ? null : dueLabel(item);
             var textX = bounds[0];
             var textWidth = bounds[2];
-            var textY = due == null ? centerY - bodyHeight / 2 : bounds[1] + (bounds[3] - bodyHeight * 2) / 2;
-            dc.setColor(TEXT, Gfx.COLOR_TRANSPARENT);
-            dc.drawText(textX, textY, Gfx.FONT_XTINY, fitText(dc, label, Gfx.FONT_XTINY, textWidth), Gfx.TEXT_JUSTIFY_LEFT);
+            var textY = isReferenceSize(screenWidth, screenHeight) ? bounds[1] + 6 : (due == null ? centerY - bodyHeight / 2 : bounds[1] + (bounds[3] - bodyHeight * 2) / 2);
+            dc.setColor(color(false, TEXT, Gfx.COLOR_WHITE), Gfx.COLOR_TRANSPARENT);
+            dc.drawText(textX, textY, taskFont, fitText(dc, label, taskFont, textWidth), Gfx.TEXT_JUSTIFY_LEFT);
             if (due != null) {
                 dc.setColor(MUTED, Gfx.COLOR_TRANSPARENT);
-                dc.drawText(textX, textY + bodyHeight, Gfx.FONT_XTINY, due, Gfx.TEXT_JUSTIFY_LEFT);
+                dc.drawText(textX, textY + taskHeight + 1, metaFont, fitText(dc, due, metaFont, textWidth), Gfx.TEXT_JUSTIFY_LEFT);
             }
         }
         dc.setPenWidth(1);
@@ -596,15 +676,17 @@ class TaskListView extends Ui.View {
             if (active) {
                 dc.setColor(KLEIN, Gfx.COLOR_TRANSPARENT);
                 dc.setPenWidth(3);
-                dc.drawLine(centerX - 30, bounds[1], centerX + 30, bounds[1]);
+                var indicatorHalfWidth = isReferenceSize(screenWidth, screenHeight) ? 24 : 30;
+                dc.drawLine(centerX - indicatorHalfWidth, bounds[1], centerX + indicatorHalfWidth, bounds[1]);
                 dc.setPenWidth(1);
             }
             dc.setColor(active ? KLEIN : MUTED, Gfx.COLOR_TRANSPARENT);
             dc.setPenWidth(2);
             drawNavIcon(dc, name, centerX, bounds[1] + 22);
             dc.setPenWidth(1);
-            dc.setColor(active ? KLEIN : MUTED, Gfx.COLOR_TRANSPARENT);
-            dc.drawText(centerX, bounds[1] + bounds[3] - bodyHeight - 1, Gfx.FONT_XTINY, navLabel(name), Gfx.TEXT_JUSTIFY_CENTER);
+            dc.setColor(active ? KLEIN : color(false, TEXT, Gfx.COLOR_WHITE), Gfx.COLOR_TRANSPARENT);
+            var labelY = isReferenceSize(screenWidth, screenHeight) ? bounds[1] + 40 : bounds[1] + bounds[3] - bodyHeight - 1;
+            dc.drawText(centerX, labelY, navFont, navLabel(name), Gfx.TEXT_JUSTIFY_CENTER);
         }
     }
 

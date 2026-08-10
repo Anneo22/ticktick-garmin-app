@@ -6,7 +6,7 @@ TickTick Tasks for Garmin is an independent Connect IQ watch app for browsing an
 
 I wanted TickTick on my Garmin without paying another subscription. The result is a small watch app, backed by a narrow OAuth relay, that keeps the common task path usable when the phone connection drops.
 
-<img src="docs/assets/fenix8-today-v031-reference.png" width="49%" alt="Today on a Fenix 8 simulator with three task stops and Today, Inbox, and Lists visible"> <img src="docs/assets/fenix8-lists-v031-reference.png" width="49%" alt="Lists on a Fenix 8 simulator with the current list selected and Today, Inbox, and Lists visible">
+<img src="docs/assets/fenix8-today-v032-20260810-publication-verified.png" width="49%" alt="Today on a Fenix 8 simulator with three tasks on a route rail, a coral selected task, a violet synced-status dot, and Today active among the Today, Inbox, and Lists tabs"> <img src="docs/assets/fenix8-lists-v032-20260810-publication-verified.png" width="49%" alt="Lists on a Fenix 8 simulator with a coral selected list, a violet synced-status dot, grey row separators, and Lists active among the Today, Inbox, and Lists tabs">
 
 ## What works
 

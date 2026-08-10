@@ -58,7 +58,7 @@ for (const drawer of ["drawRoute", "drawNavigation", "drawCompactRows", "drawAct
 }
 
 // Garmin Bridge palette only: no stray accent colour may enter the watch UI.
-const palette = ["0xFD4E5A", "0x5A5CF5", "0x1A1A1A", "0xD4D4D4"];
+const palette = ["0xFD4E5A", "0x5A5CF5", "0x1A1A1A", "0x080808", "0xD4D4D4"];
 for (const token of palette) {
   assert.ok(source.includes(token), `TaskListView must define the Garmin Bridge token ${token}`);
 }
