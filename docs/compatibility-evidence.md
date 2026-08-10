@@ -27,7 +27,7 @@ Clean launch and task-list rendering were inspected on:
 - vivoactive HR, narrow rectangle.
 - Venu X1, large rectangle.
 
-These checks prove clean launch and layout rendering on representative profiles. They do not prove every physical button mapping, touch gesture, phone transport, live OAuth flow, or TickTick provider response. Those claims remain blocked until live and physical acceptance is complete.
+These checks prove clean launch and layout rendering on representative profiles. Production TickTick OAuth, Today sync, and task completion have also been accepted on a Fenix 8. They do not prove every physical button mapping or touch gesture for this exact redesigned binary, which remains blocked until the final physical interaction pass.
 
 The current interaction pass also inspects a 454 px Fenix task list, its separate completion confirmation, a 163 x 156 Instinct 2S fallback, and synthetic 215 x 180 semiround geometry. The layout tests prove that task rows, completion nodes, navigation, and action buttons do not overlap on representative square and semiround sizes.
 

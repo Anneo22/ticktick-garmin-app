@@ -30,5 +30,6 @@ TickTick Tasks is free, contains no ads or analytics, and does not require anoth
 
 ## Claims still blocked before submission
 
-- Physical Fenix 8 button and touch acceptance.
-- Live TickTick OAuth and Today-filter acceptance against a production relay.
+- Physical Fenix 8 acceptance of this exact redesigned release binary.
+
+Live TickTick OAuth, Today sync, and task completion have been accepted against the production relay on a Fenix 8. The final redesigned binary still needs one physical interaction pass before Store submission.
