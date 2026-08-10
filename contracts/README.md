@@ -28,7 +28,7 @@ Rules:
 
 ## Tasks
 
-`GET /v1/tasks?view=today&utcOffsetMinutes=60&cursor=...` returns a bounded task page using the watch's local UTC offset and the task due date, falling back to its start date. Supported views are `today`, `inbox`, `overdue`, and `project`. The relay preserves TickTick's upstream list order. The watch treats the last-task-ID cursor as opaque and requests it at the end of a loaded page. If that anchor disappears, the relay rejects the stale cursor rather than silently skipping or reordering tasks.
+`GET /v1/tasks?view=today&utcOffsetMinutes=60&cursor=...` returns a bounded task page using the watch's local UTC offset and the task due date, falling back to its start date. The Today response puts current tasks first and appends overdue tasks marked with `isOverdue`. Moving backward from the first current task therefore reaches the overdue tail. Supported views are `today`, `inbox`, the legacy `overdue` route, and `project`. The relay preserves TickTick's upstream list order. The watch treats the last-task-ID cursor as opaque and requests it at the end of a loaded page. If that anchor disappears, the relay rejects the stale cursor rather than silently skipping or reordering tasks.
 
 Inbox is derived from TickTick's open tasks and complete project list. An open task belongs to Inbox when its required `projectId` is absent from the project response. A malformed task without a project ID is never sent to the watch because TickTick's completion endpoint requires it. The derivation is documented in [ADR 0004](../docs/adr/0004-inbox-from-open-api.md).
 

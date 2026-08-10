@@ -494,12 +494,12 @@ function inboxIsAFirstClassTaskScope(logger as Test.Logger) as Boolean {
 }
 
 (:test)
-function visibleNavigationCyclesFourScopesWithoutAccount(logger as Test.Logger) as Boolean {
+function visibleNavigationCyclesThreeScopesWithoutAccount(logger as Test.Logger) as Boolean {
     var controller = new TaskController();
     controller.store.unpair();
     controller.store = new PairedTestStore();
     controller.relay = new NoopRelay();
-    var modes = ["inbox", "overdue", "lists", "today"];
+    var modes = ["inbox", "lists", "today"];
     for (var index = 0; index < modes.size(); index += 1) {
         controller.busy = false;
         controller.cyclePrimary(1);
@@ -509,12 +509,12 @@ function visibleNavigationCyclesFourScopesWithoutAccount(logger as Test.Logger) 
 }
 
 (:test)
-function physicalMenuKeepsAccountAsFifthScope(logger as Test.Logger) as Boolean {
+function physicalMenuKeepsAccountAsFourthScope(logger as Test.Logger) as Boolean {
     var controller = new TaskController();
     controller.store.unpair();
     controller.store = new PairedTestStore();
     controller.relay = new NoopRelay();
-    var modes = ["inbox", "overdue", "lists", "account", "today"];
+    var modes = ["inbox", "lists", "account", "today"];
     for (var index = 0; index < modes.size(); index += 1) {
         controller.busy = false;
         controller.cycleMode();

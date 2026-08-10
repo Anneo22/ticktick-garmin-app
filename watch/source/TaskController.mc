@@ -537,11 +537,8 @@ class TaskController {
         if (name.equals("inbox")) {
             return 1;
         }
-        if (name.equals("overdue")) {
-            return 2;
-        }
         if (name.equals("lists") || name.equals("project")) {
-            return 3;
+            return 2;
         }
         return -1;
     }
@@ -551,16 +548,13 @@ class TaskController {
             return "inbox";
         }
         if (index == 2) {
-            return "overdue";
-        }
-        if (index == 3) {
             return "lists";
         }
         return "today";
     }
 
-    // Horizontal navigation cycles the four visible task destinations.
-    // Account remains the fifth physical MENU destination, outside the daily-navigation band.
+    // Horizontal navigation cycles the three visible destinations. Overdue lives at the back of
+    // Today's cyclic task list; Account remains the fourth physical MENU destination.
     function cyclePrimary(delta) {
         disarm();
         var index = primaryModeIndex(mode);
@@ -568,7 +562,7 @@ class TaskController {
             setMode("today");
             return;
         }
-        setMode(primaryModeAt((index + delta + 4) % 4));
+        setMode(primaryModeAt((index + delta + 3) % 3));
     }
 
     function cycleMode() {
@@ -576,8 +570,6 @@ class TaskController {
         if (mode.equals("today")) {
             setMode("inbox");
         } else if (mode.equals("inbox")) {
-            setMode("overdue");
-        } else if (mode.equals("overdue")) {
             setMode("lists");
         } else if (mode.equals("lists") || mode.equals("project")) {
             setMode("account");

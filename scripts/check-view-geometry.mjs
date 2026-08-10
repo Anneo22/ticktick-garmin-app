@@ -64,7 +64,7 @@ for (const token of palette) {
 }
 for (const hex of source.match(/0x[0-9A-Fa-f]{6}/g) ?? []) {
   assert.ok(
-    [...palette, "0xA0A0A0", "0x666666"].includes(hex),
+    [...palette, "0xA0A0A0", "0x333333"].includes(hex),
     `TaskListView uses off-palette colour ${hex}`,
   );
 }

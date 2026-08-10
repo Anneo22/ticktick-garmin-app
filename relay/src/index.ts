@@ -236,7 +236,7 @@ function taskList(payload: unknown): Task[] | null {
 
 function normalizeTask(task: Task): Record<string, unknown> {
   const normalized: Record<string, unknown> = {};
-  for (const key of ["id", "projectId", "dueDate", "isAllDay", "priority", "status", "kind"] as const) {
+  for (const key of ["id", "projectId", "dueDate", "isAllDay", "isOverdue", "priority", "status", "kind"] as const) {
     const value = task[key];
     if (typeof value === "string") {
       const limit = key === "dueDate" ? 40 : key === "kind" ? 32 : 128;
@@ -324,10 +324,17 @@ function dateKey(task: Task, utcOffsetMinutes: number): string | null {
 
 export function tasksForView(tasks: Task[], view: "today" | "overdue", utcOffsetMinutes: number, timestamp = Date.now()): Task[] {
   const today = localDateKey(utcOffsetMinutes, timestamp);
-  return tasks.filter((task) => {
-    const effectiveDate = dateKey(task, utcOffsetMinutes);
-    return effectiveDate !== null && (view === "today" ? effectiveDate === today : effectiveDate < today);
-  });
+  const classified = tasks.map((task) => ({ task, effectiveDate: dateKey(task, utcOffsetMinutes) }));
+  const overdue = classified
+    .filter(({ effectiveDate }) => effectiveDate !== null && effectiveDate < today)
+    .map(({ task }) => ({ ...task, isOverdue: true }));
+  if (view === "overdue") return overdue;
+  const dueToday = classified
+    .filter(({ effectiveDate }) => effectiveDate === today)
+    .map(({ task }) => task);
+  // Today stays the landing point. Overdue tasks follow the Today rows in the cyclic watch list,
+  // so one upward/backward move from the first Today task reveals the most recent overdue task.
+  return dueToday.concat(overdue);
 }
 
 // TickTick's documented Open API exposes the user's lists but no named Inbox endpoint.

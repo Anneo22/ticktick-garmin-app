@@ -162,7 +162,7 @@ function navigationTapSwitchesScopeAndDisarms(logger as Test.Logger) as Boolean 
     var view = routeView(controller, FENIX_SIZE);
     Test.assertEqual("today", view.navBounds[0][4]);
     Test.assertEqual("inbox", view.navBounds[1][4]);
-    Test.assertEqual("overdue", view.navBounds[2][4]);
+    Test.assertEqual("lists", view.navBounds[2][4]);
     Test.assert(view.handleTap(centerOf(view.navBounds[1])));
     Test.assertEqual("inbox", controller.mode);
     Test.assert(!controller.confirmingCompletion);
@@ -171,10 +171,10 @@ function navigationTapSwitchesScopeAndDisarms(logger as Test.Logger) as Boolean 
 }
 
 (:test)
-function navigationShowsFourUncrowdedCellsAndAllFourScopes(logger as Test.Logger) as Boolean {
+function navigationRestoresThreeLabelledReferenceDestinations(logger as Test.Logger) as Boolean {
     var controller = routeController(3);
     var view = routeView(controller, FENIX_SIZE);
-    Test.assertEqual(4, view.navBounds.size());
+    Test.assertEqual(3, view.navBounds.size());
     for (var index = 0; index < view.navBounds.size(); index += 1) {
         var bounds = view.navBounds[index];
         Test.assert(bounds[0] >= FENIX_SIZE / 16);
@@ -187,8 +187,31 @@ function navigationShowsFourUncrowdedCellsAndAllFourScopes(logger as Test.Logger
     }
     Test.assertEqual("today", view.navBounds[0][4]);
     Test.assertEqual("inbox", view.navBounds[1][4]);
-    Test.assertEqual("overdue", view.navBounds[2][4]);
-    Test.assertEqual("lists", view.navBounds[3][4]);
+    Test.assertEqual("lists", view.navBounds[2][4]);
+    return true;
+}
+
+(:test)
+function fenixUsesSpaciousReferenceGeometryWithoutChangingSmallerLayouts(logger as Test.Logger) as Boolean {
+    var controller = routeController(3);
+    controller.tasks[0]["dueDate"] = "2026-08-10T18:30:00.000+0000";
+    var fenix = routeView(controller, FENIX_SIZE);
+    Test.assertEqual(FENIX_SIZE - 60 - FENIX_SIZE / 10, fenix.navBounds[0][1]);
+    Test.assertEqual(FENIX_SIZE / 7, fenix.navBounds[0][0]);
+    Test.assertEqual(78, fenix.rowHeight);
+    Test.assertEqual(64, fenix.nodeBounds[0][2]);
+    Test.assert(fenix.rowBounds[2][1] + fenix.rowBounds[2][3] < fenix.navBounds[0][1]);
+    Test.assert(fenix.nodeBounds[0][1] + fenix.nodeBounds[0][3] / 2 < fenix.rowBounds[0][1] + fenix.rowBounds[0][3] / 2);
+
+    var mixedController = routeController(3);
+    mixedController.tasks[1]["dueDate"] = "2026-08-10T20:00:00.000+0000";
+    var mixed = routeView(mixedController, FENIX_SIZE);
+    Test.assert(!overlaps(mixed.nodeBounds[0], mixed.nodeBounds[1]));
+
+    var smaller = new TaskListView(controller);
+    smaller.layout(416, 416, FENIX_TITLE_HEIGHT, FENIX_BODY_HEIGHT);
+    Test.assertEqual(2, smaller.rowBounds.size());
+    Test.assertEqual(416 - 60 - (416 / 7 + 12), smaller.navBounds[0][1]);
     return true;
 }
 
@@ -252,8 +275,8 @@ function drawnBoundsAreTheHitTestBounds(logger as Test.Logger) as Boolean {
     var controller = routeController(6);
     controller.selected = 3;
     var view = routeView(controller, FENIX_SIZE);
-    Test.assertEqual(2, view.rowBounds.size());
-    Test.assertEqual(2, view.nodeBounds.size());
+    Test.assertEqual(3, view.rowBounds.size());
+    Test.assertEqual(3, view.nodeBounds.size());
     for (var row = 0; row < view.rowBounds.size(); row += 1) {
         var bounds = view.rowBounds[row];
         Test.assert(bounds[2] > 0 && bounds[3] > 0);
@@ -286,9 +309,9 @@ function compactStaysButtonFirstWithoutTouchCompletion(logger as Test.Logger) as
 }
 
 (:test)
-function compactTouchFooterCyclesOnlyTheFourVisibleScopes(logger as Test.Logger) as Boolean {
+function compactTouchFooterCyclesOnlyTheThreeVisibleScopes(logger as Test.Logger) as Boolean {
     var controller = routeController(0);
-    var modes = ["inbox", "overdue", "lists", "today"];
+    var modes = ["inbox", "lists", "today"];
     for (var index = 0; index < modes.size(); index += 1) {
         controller.busy = false;
         var view = routeView(controller, COMPACT_SIZE);
@@ -303,17 +326,17 @@ function compactTouchFooterCyclesOnlyTheFourVisibleScopes(logger as Test.Logger)
 function emptyAndLoadingViewsKeepSafeNavigation(logger as Test.Logger) as Boolean {
     var controller = routeController(0);
     var view = routeView(controller, FENIX_SIZE);
-    Test.assertEqual(4, view.navBounds.size());
+    Test.assertEqual(3, view.navBounds.size());
     Test.assert(view.actionBounds != null);
-    controller.mode = "overdue";
+    controller.mode = "inbox";
     controller.busy = false;
     view.layout(FENIX_SIZE, FENIX_SIZE, FENIX_TITLE_HEIGHT, FENIX_BODY_HEIGHT);
-    Test.assert(view.handleTap(centerOf(view.navBounds[3])));
+    Test.assert(view.handleTap(centerOf(view.navBounds[2])));
     Test.assertEqual("lists", controller.mode);
 
     controller.busy = true;
     view.layout(FENIX_SIZE, FENIX_SIZE, FENIX_TITLE_HEIGHT, FENIX_BODY_HEIGHT);
-    Test.assertEqual(4, view.navBounds.size());
+    Test.assertEqual(3, view.navBounds.size());
     Test.assert(view.actionBounds == null);
     return true;
 }
@@ -400,7 +423,7 @@ function representativeScreenFamiliesKeepGeometrySeparated(logger as Test.Logger
         var controller = routeController(4);
         var view = new TaskListView(controller);
         view.layout(size, size, size <= 240 ? 21 : 29, size <= 240 ? 16 : 21);
-        Test.assertEqual(size <= 280 ? 1 : (size >= 400 ? 4 : 3), view.navBounds.size());
+        Test.assertEqual(size <= 280 ? 1 : 3, view.navBounds.size());
         for (var row = 0; row < view.rowBounds.size(); row += 1) {
             var bounds = view.rowBounds[row];
             Test.assert(bounds[0] >= 0 && bounds[1] >= 0);
@@ -546,7 +569,7 @@ function longTaskAndListNamesKeepGeometryIsolated(logger as Test.Logger) as Bool
         {"id" => "long-3", "projectId" => "project-1", "title" => longName + " three"}
     ];
     var taskView = routeView(controller, FENIX_SIZE);
-    Test.assertEqual(2, taskView.rowBounds.size());
+    Test.assertEqual(3, taskView.rowBounds.size());
     for (var row = 0; row < taskView.rowBounds.size(); row += 1) {
         Test.assert(!overlaps(taskView.rowBounds[row], taskView.navBounds[0]));
         if (row > 0) {
@@ -583,5 +606,22 @@ function horizontalNavigationCyclesOnlyVisibleDestinationsAndProjectBackReturnsT
     controller.projectName = "First";
     Test.assert(controller.goBack());
     Test.assertEqual("lists", controller.mode);
+    return true;
+}
+
+(:test)
+function todayBackwardScrollRevealsOverdueTailWithoutAnotherTab(logger as Test.Logger) as Boolean {
+    var controller = routeController(0);
+    controller.tasks = [
+        {"id" => "today-1", "projectId" => "project-1", "title" => "Today", "dueDate" => "2026-08-10T18:30:00+0100"},
+        {"id" => "overdue-1", "projectId" => "project-1", "title" => "Yesterday", "dueDate" => "2026-08-09T18:30:00+0100", "isOverdue" => true}
+    ];
+    var view = routeView(controller, FENIX_SIZE);
+    Test.assertEqual(3, view.navBounds.size());
+    Test.assertEqual("Overdue  08-09", view.dueLabel(controller.tasks[1]));
+    controller.move(-1);
+    Test.assertEqual(1, controller.selected);
+    Test.assertEqual("today", controller.mode);
+    Test.assert(controller.tasks[controller.selected]["isOverdue"] == true);
     return true;
 }

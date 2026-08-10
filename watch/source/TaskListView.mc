@@ -3,7 +3,7 @@ using Toybox.WatchUi as Ui;
 
 // Direction contract (concept seed d39802f1).
 // Route stops, not generic cards: the list is a single vertical spine whose stops are tasks.
-// Isolated navigation: Today/Inbox/Overdue/Lists own their own bounds at the foot of the screen
+// Isolated navigation: Today/Inbox/Lists own their own bounds at the foot of the screen
 //   and can never overlap a stop, so a navigation tap can never touch a task.
 // Deliberate two-step completion: only the selected stop's completion node arms, and only a
 //   separate confirm action completes. A row tap selects; a retap of the selected row does nothing.
@@ -15,7 +15,7 @@ class TaskListView extends Ui.View {
     const SURFACE = 0x1A1A1A;
     const TEXT = 0xD4D4D4;
     const MUTED = 0xA0A0A0;
-    const HAIRLINE = 0x666666;
+    const HAIRLINE = 0x333333;
     const VISIBLE = 3;
 
     var controller;
@@ -132,7 +132,7 @@ class TaskListView extends Ui.View {
     function statusColor(compact) {
         var status = controller.status;
         if (status.equals("synced") || status.equals("paired") || status.equals("reconciled") || status.equals("pair_pending")) {
-            return color(compact, TEXT, Gfx.COLOR_WHITE);
+            return color(compact, KLEIN, Gfx.COLOR_WHITE);
         }
         if (status.equals("network_error") || status.equals("request_timeout") || status.equals("phone_unavailable") || status.equals("service_unavailable") || status.equals("pair_expired") || status.equals("authorization_expired") || status.equals("completion_uncertain") || status.equals("change_rejected") || status.equals("queue_full") || status.equals("unpair_failed")) {
             return color(compact, CORAL, Gfx.COLOR_WHITE);
@@ -163,10 +163,13 @@ class TaskListView extends Ui.View {
             return null;
         }
         if (controller.mode.equals("today")) {
+            if (task["isOverdue"] == true) {
+                return "Overdue  " + due.substring(5, 10);
+            }
             if (task["isAllDay"] == true || due.length() < 16) {
                 return "All day";
             }
-            return "At " + due.substring(11, 16);
+            return due.substring(11, 16);
         }
         return "Due  " + due.substring(5, 10);
     }
@@ -208,12 +211,14 @@ class TaskListView extends Ui.View {
 
     function layoutRoute(width, height, compact) {
         var navHeight = compact ? bodyHeight + 4 : 60;
-        // The navigation sits well clear of the bottom bezel, and inside a narrower band than the
-        // rows, so a round screen never clips the outer labels.
-        var navTop = height - navHeight - (compact ? 2 : height / 7 + 12);
-        // Two-line task rows need breathing room on every round colour display. Lists remain
-        // single-line and can use a third row on the widest watches.
-        visibleRows = compact ? VISIBLE : (controller.mode.equals("lists") && width >= 440 ? VISIBLE : 2);
+        var spacious = !compact && width >= 440 && height >= 440;
+        // Wide AMOLED watches follow the approved Fenix composition and use the lower tenth of
+        // the display as their bezel-safe inset. Smaller watches retain their tighter own layout.
+        var bottomInset = compact ? 2 : (spacious ? height / 10 : height / 7 + 12);
+        var navTop = height - navHeight - bottomInset;
+        // The approved Fenix composition is a three-stop route. Smaller colour screens step down
+        // to two rows; compact watches keep the existing button-first list.
+        visibleRows = compact ? VISIBLE : (width >= 440 ? VISIBLE : 2);
         rowHeight = (navTop - listTop) / visibleRows;
         if (rowHeight > 78) {
             rowHeight = 78;
@@ -222,8 +227,8 @@ class TaskListView extends Ui.View {
             rowHeight = 28;
         }
         var nodeSize = compact ? 0 : rowHeight - 8;
-        if (nodeSize > 72) {
-            nodeSize = 72;
+        if (nodeSize > 64) {
+            nodeSize = 64;
         }
         if (!compact && nodeSize < 44) {
             nodeSize = 44;
@@ -246,12 +251,17 @@ class TaskListView extends Ui.View {
             var itemId = items[index]["id"];
             rowBounds.add([left, y, right - left, rowHeight, index, itemKind, itemId]);
             if (!compact) {
-                nodeBounds.add([nodeCenter - nodeSize / 2, y + rowHeight / 2 - nodeSize / 2, nodeSize, nodeSize, index, itemKind, itemId]);
+                var nodeY = y + rowHeight / 2;
+                if (itemKind.equals("task") && dueLabel(items[index]) != null) {
+                    // The reference aligns each stop with its title, not midway between title and
+                    // due time. The generous stored square remains the node's touch target.
+                    nodeY = y + (rowHeight - bodyHeight) / 2;
+                }
+                nodeBounds.add([nodeCenter - nodeSize / 2, nodeY - nodeSize / 2, nodeSize, nodeSize, index, itemKind, itemId]);
             }
         }
-        var wide = !compact && width >= 400;
-        var navLeft = compact ? 0 : width / 10;
-        var names = compact ? ["cycle"] : (wide ? ["today", "inbox", "overdue", "lists"] : (controller.primaryModeIndex(controller.mode) >= 2 ? ["inbox", "overdue", "lists"] : ["today", "inbox", "overdue"]));
+        var navLeft = compact ? 0 : (spacious ? width / 7 : width / 10);
+        var names = compact ? ["cycle"] : ["today", "inbox", "lists"];
         var cellWidth = (width - navLeft * 2) / names.size();
         for (var cell = 0; cell < names.size(); cell += 1) {
             navBounds.add([navLeft + cell * cellWidth, navTop, cellWidth, navHeight, names[cell]]);
@@ -259,7 +269,10 @@ class TaskListView extends Ui.View {
     }
 
     function headerTop(height, compact) {
-        return compact ? 8 : height / 14;
+        if (compact) {
+            return 8;
+        }
+        return height >= 440 ? height / 30 : height / 14;
     }
 
     function actionButtonBounds(width, y, compact) {
@@ -446,11 +459,12 @@ class TaskListView extends Ui.View {
     function drawHeader(dc, compact) {
         var width = dc.getWidth();
         var top = headerTop(dc.getHeight(), compact);
+        var spacious = !compact && width >= 440 && dc.getHeight() >= 440;
         var titleFont = compact ? Gfx.FONT_XTINY : Gfx.FONT_SMALL;
         dc.setColor(color(compact, TEXT, Gfx.COLOR_WHITE), Gfx.COLOR_TRANSPARENT);
         dc.drawText(width / 2, top, titleFont, fitText(dc, modeTitle(), titleFont, width - (compact ? 46 : width / 4)), Gfx.TEXT_JUSTIFY_CENTER);
 
-        var statusY = top + titleHeight + (compact ? 1 : 2);
+        var statusY = top + titleHeight + (compact ? 1 : (spacious ? -4 : 2));
         var statusText = statusLabel();
         var fitted = fitText(dc, statusText, Gfx.FONT_XTINY, width - (compact ? 24 : width / 4));
         dc.setColor(statusColor(compact), Gfx.COLOR_TRANSPARENT);
@@ -479,7 +493,7 @@ class TaskListView extends Ui.View {
         var firstY = nodeBounds[0][1] + nodeBounds[0][3] / 2;
         var lastNode = nodeBounds[nodeBounds.size() - 1];
         if (!isLists) {
-            dc.setColor(HAIRLINE, Gfx.COLOR_TRANSPARENT);
+            dc.setColor(MUTED, Gfx.COLOR_TRANSPARENT);
             dc.setPenWidth(2);
             dc.drawLine(spineX, firstY, spineX, lastNode[1] + lastNode[3] / 2);
         }
@@ -492,12 +506,10 @@ class TaskListView extends Ui.View {
             var node = nodeBounds[row];
             var centerY = node[1] + node[3] / 2;
 
-            if (!isLists && selected && row > 0) {
-                dc.setColor(KLEIN, Gfx.COLOR_TRANSPARENT);
-                var previousNode = nodeBounds[row - 1];
-                var previousBottom = previousNode[1] + previousNode[3] - 4;
-                var currentTop = node[1] + 4;
-                dc.drawLine(spineX, previousBottom, spineX, currentTop);
+            if (!isLists && selected && row + 1 < nodeBounds.size()) {
+                dc.setColor(CORAL, Gfx.COLOR_TRANSPARENT);
+                var nextNode = nodeBounds[row + 1];
+                dc.drawLine(spineX, centerY, spineX, nextNode[1] + nextNode[3] / 2);
             }
             if (row + 1 < rowBounds.size()) {
                 dc.setColor(HAIRLINE, Gfx.COLOR_TRANSPARENT);
@@ -507,12 +519,15 @@ class TaskListView extends Ui.View {
             }
 
             dc.setColor(SURFACE, Gfx.COLOR_TRANSPARENT);
-            dc.fillCircle(spineX, centerY, node[2] / 2 - 4);
-            dc.setColor(!isLists && selected ? KLEIN : MUTED, Gfx.COLOR_TRANSPARENT);
+            dc.fillCircle(spineX, centerY, 12);
+            dc.setColor(selected ? CORAL : MUTED, Gfx.COLOR_TRANSPARENT);
             if (isLists) {
                 drawFolderMark(dc, spineX, centerY);
             } else {
-                dc.drawCircle(spineX, centerY, node[2] / 2 - 7);
+                dc.drawCircle(spineX, centerY, 11);
+                if (selected) {
+                    dc.fillCircle(spineX, centerY, 6);
+                }
             }
 
             var label = isLists ? item["name"] : item["title"];
@@ -520,13 +535,7 @@ class TaskListView extends Ui.View {
             var textX = bounds[0];
             var textWidth = bounds[2];
             var textY = due == null ? centerY - bodyHeight / 2 : bounds[1] + (bounds[3] - bodyHeight * 2) / 2;
-            if (selected) {
-                dc.setColor(KLEIN, Gfx.COLOR_TRANSPARENT);
-                dc.drawText(textX, textY, Gfx.FONT_XTINY, ">", Gfx.TEXT_JUSTIFY_LEFT);
-                textX += 18;
-                textWidth -= 18;
-            }
-            dc.setColor(selected ? TEXT : MUTED, Gfx.COLOR_TRANSPARENT);
+            dc.setColor(TEXT, Gfx.COLOR_TRANSPARENT);
             dc.drawText(textX, textY, Gfx.FONT_XTINY, fitText(dc, label, Gfx.FONT_XTINY, textWidth), Gfx.TEXT_JUSTIFY_LEFT);
             if (due != null) {
                 dc.setColor(MUTED, Gfx.COLOR_TRANSPARENT);
@@ -539,9 +548,6 @@ class TaskListView extends Ui.View {
     function navLabel(name) {
         if (name.equals("inbox")) {
             return "Inbox";
-        }
-        if (name.equals("overdue")) {
-            return "Overdue";
         }
         return name.equals("lists") ? "Lists" : "Today";
     }
@@ -571,12 +577,6 @@ class TaskListView extends Ui.View {
             dc.drawLine(centerX, centerY - 3, centerX + 4, centerY - 8);
             return;
         }
-        if (name.equals("overdue")) {
-            dc.drawCircle(centerX, centerY, 10);
-            dc.drawLine(centerX, centerY, centerX, centerY - 6);
-            dc.drawLine(centerX, centerY, centerX + 5, centerY + 3);
-            return;
-        }
         dc.drawLine(centerX - 11, centerY - 7, centerX - 3, centerY - 7);
         dc.drawLine(centerX - 3, centerY - 7, centerX, centerY - 3);
         dc.drawLine(centerX, centerY - 3, centerX + 11, centerY - 3);
@@ -586,23 +586,8 @@ class TaskListView extends Ui.View {
     }
 
     function drawNavigation(dc) {
-        var wideBand = navBounds.size() == 4;
-        if (navBounds.size() == 3) {
-            var cueY = navBounds[0][1] + 25;
-            dc.setColor(MUTED, Gfx.COLOR_TRANSPARENT);
-            if (!navBounds[0][4].equals("today")) {
-                var leftCue = navBounds[0][0] + 8;
-                dc.drawLine(leftCue, cueY, leftCue + 8, cueY);
-                dc.drawLine(leftCue, cueY, leftCue + 5, cueY - 5);
-                dc.drawLine(leftCue, cueY, leftCue + 5, cueY + 5);
-            }
-            if (!navBounds[navBounds.size() - 1][4].equals("lists")) {
-                var rightCue = navBounds[navBounds.size() - 1][0] + navBounds[navBounds.size() - 1][2] - 8;
-                dc.drawLine(rightCue - 8, cueY, rightCue, cueY);
-                dc.drawLine(rightCue, cueY, rightCue - 5, cueY - 5);
-                dc.drawLine(rightCue, cueY, rightCue - 5, cueY + 5);
-            }
-        }
+        dc.setColor(HAIRLINE, Gfx.COLOR_TRANSPARENT);
+        dc.drawLine(navBounds[0][0], navBounds[0][1], navBounds[navBounds.size() - 1][0] + navBounds[navBounds.size() - 1][2], navBounds[0][1]);
         for (var cell = 0; cell < navBounds.size(); cell += 1) {
             var bounds = navBounds[cell];
             var name = bounds[4];
@@ -611,17 +596,15 @@ class TaskListView extends Ui.View {
             if (active) {
                 dc.setColor(KLEIN, Gfx.COLOR_TRANSPARENT);
                 dc.setPenWidth(3);
-                dc.drawLine(centerX - 15, bounds[1], centerX + 15, bounds[1]);
+                dc.drawLine(centerX - 30, bounds[1], centerX + 30, bounds[1]);
                 dc.setPenWidth(1);
             }
             dc.setColor(active ? KLEIN : MUTED, Gfx.COLOR_TRANSPARENT);
             dc.setPenWidth(2);
-            drawNavIcon(dc, name, centerX, bounds[1] + (wideBand ? 18 : 25));
+            drawNavIcon(dc, name, centerX, bounds[1] + 22);
             dc.setPenWidth(1);
-            if (!wideBand || active) {
-                dc.setColor(active ? TEXT : MUTED, Gfx.COLOR_TRANSPARENT);
-                dc.drawText(centerX, bounds[1] + bounds[3] - bodyHeight - 1, Gfx.FONT_XTINY, navLabel(name), Gfx.TEXT_JUSTIFY_CENTER);
-            }
+            dc.setColor(active ? KLEIN : MUTED, Gfx.COLOR_TRANSPARENT);
+            dc.drawText(centerX, bounds[1] + bounds[3] - bodyHeight - 1, Gfx.FONT_XTINY, navLabel(name), Gfx.TEXT_JUSTIFY_CENTER);
         }
     }
 

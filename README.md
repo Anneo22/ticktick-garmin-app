@@ -6,13 +6,13 @@ TickTick Tasks for Garmin is an independent Connect IQ watch app for browsing an
 
 I wanted TickTick on my Garmin without paying another subscription. The result is a small watch app, backed by a narrow OAuth relay, that keeps the common task path usable when the phone connection drops.
 
-<img src="docs/assets/fenix8-today-v03.jpeg" width="49%" alt="Today on a Fenix 8 simulator with two spacious task rows and all four destinations visible"> <img src="docs/assets/fenix8-lists-v03.jpeg" width="49%" alt="Lists on a Fenix 8 simulator with the current list clearly selected and all four destinations visible">
+<img src="docs/assets/fenix8-today-v031-reference.png" width="49%" alt="Today on a Fenix 8 simulator with three task stops and Today, Inbox, and Lists visible"> <img src="docs/assets/fenix8-lists-v031-reference.png" width="49%" alt="Lists on a Fenix 8 simulator with the current list selected and Today, Inbox, and Lists visible">
 
 ## What works
 
 - Pair and unpair through a short code opened on the phone.
-- Browse Today, Inbox, Overdue, Lists, and the tasks inside each list.
-- See Today, Inbox, Overdue, and Lists together on wide watches; mid-size screens keep a three-item scrolling band. Tap, swipe, or use watch buttons to move between them.
+- Browse Today, Inbox, Lists, and the tasks inside each list. Overdue tasks sit behind Today and appear when you scroll backward from the first task.
+- See Today, Inbox, and Lists together on wide watches. Tap, swipe, or use watch buttons to move between them.
 - Tap anywhere on a list row to open its tasks.
 - Navigate with buttons, swipes, or isolated touch targets that cannot complete a task by accident.
 - Preserve TickTick's upstream task order across bounded pages.
@@ -51,7 +51,7 @@ With the Garmin SDK installed and selected in `~/Library/Application Support/Gar
 CIQ_DEVELOPER_KEY=/path/to/developer-key.der ./scripts/verify.sh
 ```
 
-The full command compiles all 126 SDK product targets, builds reproducible visual fixtures, and runs 73 Monkey C tests on both Fenix 8 and the 96 KiB Instinct 2S target. Build the signed Store package with:
+The full command compiles all 126 SDK product targets, builds reproducible visual fixtures, and runs 75 Monkey C tests on both Fenix 8 and the 96 KiB Instinct 2S target. Build the signed Store package with:
 
 ```sh
 CIQ_DEVELOPER_KEY=/path/to/developer-key.der ./scripts/package.sh
@@ -71,7 +71,7 @@ Do not put production values in `wrangler.toml`, source files, the watch package
 
 ## Current status
 
-This is a verified release candidate, not a live Store app. The relay is deployed, and pairing, TickTick consent, Today sync, and task completion have passed on a physical Fenix 8. Inbox and the final four-destination navigation binary still need one physical acceptance pass, followed by Garmin review. The first release browses and completes tasks; it does not create, edit, move, delete, or reopen them.
+This is a verified release candidate, not a live Store app. The relay is deployed, and pairing, TickTick consent, Today sync, and task completion have passed on a physical Fenix 8. The corrected three-destination binary still needs one physical acceptance pass, followed by Garmin review. The first release browses and completes tasks; it does not create, edit, move, delete, or reopen them.
 
 The app has no separate subscription, ads, or analytics. A TickTick account is required, and cloud hosting cannot be promised free forever.
 

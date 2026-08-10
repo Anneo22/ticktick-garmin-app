@@ -122,3 +122,49 @@ class VisualQaListsApp extends App.AppBase {
         return [view, new TaskListDelegate(controller, view)];
     }
 }
+
+class VisualQaStressController extends VisualQaController {
+    function initialize() {
+        VisualQaController.initialize();
+        tasks = [
+            {
+                "id" => "qa-long-1",
+                "projectId" => "qa-list-1",
+                "title" => "Review the final launch readiness plan with every stakeholder",
+                "dueDate" => "2026-08-10T18:30:00+0100",
+                "isAllDay" => false
+            },
+            {
+                "id" => "qa-long-2",
+                "projectId" => "qa-list-1",
+                "title" => "Reply to all outstanding notes from the product review",
+                "dueDate" => "2026-08-10T20:00:00+0100",
+                "isAllDay" => false
+            },
+            {
+                "id" => "qa-long-3",
+                "projectId" => "qa-list-2",
+                "title" => "Plan the entire week including training travel and recovery",
+                "dueDate" => "2026-08-09",
+                "isAllDay" => true,
+                "isOverdue" => true
+            }
+        ];
+        selected = 1;
+    }
+}
+
+class VisualQaStressApp extends App.AppBase {
+    var controller;
+
+    function initialize() {
+        AppBase.initialize();
+        controller = new VisualQaStressController();
+    }
+
+    function getInitialView() {
+        var view = new TaskListView(controller);
+        controller.attach(view);
+        return [view, new TaskListDelegate(controller, view)];
+    }
+}

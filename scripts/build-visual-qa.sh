@@ -11,7 +11,8 @@ qa_dir="$project_root/build/visual-qa"
 case "$view" in
     today) entry=VisualQaApp ;;
     lists) entry=VisualQaListsApp ;;
-    *) echo "visual QA view must be today or lists" >&2; exit 2 ;;
+    stress) entry=VisualQaStressApp ;;
+    *) echo "visual QA view must be today, lists, or stress" >&2; exit 2 ;;
 esac
 
 mkdir -p "$qa_dir"

@@ -7,7 +7,7 @@ colors:
   coral: "#FD4E5A"
   klein: "#5A5CF5"
   muted: "#A0A0A0"
-  hairline: "#666666"
+  hairline: "#333333"
 typography:
   body:
     fontFamily: "Garmin system, system-ui, sans-serif"
@@ -37,10 +37,10 @@ TickTick Tasks uses one visual idea across the watch, pairing site, launcher ico
 | --- | --- | --- |
 | Surface | `#1A1A1A` | AMOLED background and icon field |
 | Text | `#D4D4D4` | Primary copy |
-| Coral | `#FD4E5A` | Confirmation and primary action |
-| Klein | `#5A5CF5` | Current stop, status dot, and active-view underline |
+| Coral | `#FD4E5A` | Selected stop, selected route segment, confirmation, and primary action |
+| Klein | `#5A5CF5` | Synced state and active-view underline |
 | Muted | `#A0A0A0` | Secondary task and status copy |
-| Hairline | `#666666` | Route and row separation |
+| Hairline | `#333333` | Route and row separation |
 
 Low-colour watches use Garmin's black, white, and light-grey device palette.
 
@@ -49,9 +49,10 @@ Low-colour watches use Garmin's black, white, and light-grey device palette.
 - A task-row tap selects only. Retapping it does nothing destructive.
 - Only the separate stop node can arm completion on touch watches.
 - A separate, full-width confirmation action completes the task.
-- Today, Inbox, Overdue, and Lists have isolated navigation bounds. Fenix-class wide screens show all four together; mid-size colour screens show three at a time, while swipes and watch buttons cycle the same four destinations.
+- Today, Inbox, and Lists have isolated navigation bounds and remain visible together on Fenix-class screens.
+- Overdue tasks are the tail of Today. Moving backward from the first current task wraps to that overdue tail, matching TickTick's single Today flow without adding a fourth tab.
 - Lists opens TickTick's lists. A tap anywhere on a list row opens its tasks, and a right swipe returns to Lists.
-- MENU cycles the four task destinations and Account. Account stays off the visible band so it does not compete with daily navigation.
+- MENU cycles the three task destinations and Account. Account stays off the visible band so it does not compete with daily navigation.
 - Navigation and safe selection remain responsive during sync and always cancel an armed action.
 - Pairing is the only full-screen touch target because it is non-destructive and idempotent.
 - Compact watches keep the button-first list and show `MENU views` as a visible footer.
@@ -60,7 +61,9 @@ Low-colour watches use Garmin's black, white, and light-grey device palette.
 
 ## Responsive behaviour
 
-Screens at or below 280 px in either dimension use the compact layout. Larger screens show the route spine, a completion gutter up to 72 px wide, and a 64 px confirmation button. Colour task views show two spacious two-line rows; the widest screens use a third row only for single-line Lists. More items scroll with the current selection. Long task and list names stay on one fitted line, with due information on its own line when present.
+Screens at or below 280 px in either dimension use the compact layout. Larger screens show the route spine, a completion gutter up to 72 px wide, and a 64 px confirmation button. Fenix-class screens show three task or list rows; smaller colour screens show two. More items scroll with the current selection. Long task and list names stay on one fitted line, with due information on its own line when present.
+
+The Fenix composition is fixed: a large centred title, a blue sync state, three route stops, a coral selected stop and connector, subtle row dividers, and three fully labelled destinations. Selection has no chevron or second cursor.
 
 ## Public surface
 

@@ -28,8 +28,8 @@ if ! rg -q 'function onTap\(' "$delegate" || ! rg -q 'function onSwipe\(' "$dele
     exit 1
 fi
 if ! rg -q 'cyclePrimary\(1\)' "$delegate" || ! rg -q 'cyclePrimary\(-1\)' "$delegate" ||
-    ! rg -q '\["today", "inbox", "overdue", "lists"\]' "$view"; then
-    echo "source: navigation must expose Today, Inbox, Overdue, and Lists while retaining swipe input" >&2
+    ! rg -q '\["today", "inbox", "lists"\]' "$view"; then
+    echo "source: navigation must expose Today, Inbox, and Lists while retaining swipe input" >&2
     exit 1
 fi
 if rg -q 'SELECT TO START|CONTACTING PHONE|Approve this code on your phone' "$view" ||

@@ -12,7 +12,7 @@ TickTick users who wear a Garmin watch and want to review and complete tasks wit
 
 ## Product Purpose
 
-Provide a public, subscription-free, TickTick-only Garmin Connect IQ app. Success means a user can pair once, browse Today, Inbox, Overdue, Lists, and the tasks inside a list, complete tasks deliberately, keep useful cached state offline, and recover from connectivity failures without becoming stuck.
+Provide a public, subscription-free, TickTick-only Garmin Connect IQ app. Success means a user can pair once, browse Today with its overdue tail, Inbox, Lists, and the tasks inside a list, complete tasks deliberately, keep useful cached state offline, and recover from connectivity failures without becoming stuck.
 
 ## Positioning
 

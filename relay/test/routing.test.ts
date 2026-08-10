@@ -414,7 +414,7 @@ test("malformed successful task payload is an upstream failure, not an empty lis
   }
 });
 
-test("Today and Overdue classify by due date before start date", async (context) => {
+test("Today puts current tasks first and overdue tasks one backward scroll away", async (context) => {
   const db = new FakeD1();
   const { env, relayToken } = await authenticatedEnv(db);
   const now = new Date();
@@ -430,10 +430,14 @@ test("Today and Overdue classify by due date before start date", async (context)
     const headers = { authorization: `Bearer ${relayToken}` };
     const today = await worker.fetch(new Request("https://relay.test/v1/tasks?view=today&utcOffsetMinutes=0", { headers }), env);
     const overdue = await worker.fetch(new Request("https://relay.test/v1/tasks?view=overdue&utcOffsetMinutes=0", { headers }), env);
-    const todayIds = (await today.json() as { data: { tasks: Array<{ id: string }> } }).data.tasks.map((task) => task.id);
-    const overdueIds = (await overdue.json() as { data: { tasks: Array<{ id: string }> } }).data.tasks.map((task) => task.id);
-    assert.deepEqual(todayIds, ["due-today", "due-only-today", "start-today"]);
+    const todayTasks = (await today.json() as { data: { tasks: Array<{ id: string; isOverdue?: boolean }> } }).data.tasks;
+    const overdueTasks = (await overdue.json() as { data: { tasks: Array<{ id: string; isOverdue?: boolean }> } }).data.tasks;
+    assert.deepEqual(todayTasks.map((task) => task.id), ["due-today", "due-only-today", "start-today", "due-yesterday"]);
+    assert.equal(todayTasks[0].isOverdue, undefined);
+    assert.equal(todayTasks[3].isOverdue, true);
+    const overdueIds = overdueTasks.map((task) => task.id);
     assert.deepEqual(overdueIds, ["due-yesterday"]);
+    assert.equal(overdueTasks[0].isOverdue, true);
   } finally {
     context.mock.restoreAll();
   }

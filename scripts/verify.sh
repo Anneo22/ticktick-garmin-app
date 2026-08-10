@@ -32,5 +32,6 @@ fi
 WATCH_TEST_DEVICE=instinct2s "$project_root/scripts/verify-watch-tests.sh"
 "$project_root/scripts/build-visual-qa.sh" fenix847mm today >/dev/null
 "$project_root/scripts/build-visual-qa.sh" fenix847mm lists >/dev/null
+"$project_root/scripts/build-visual-qa.sh" fenix847mm stress >/dev/null
 "$project_root/scripts/build-visual-qa.sh" instinct2s today >/dev/null
 echo "watch: compiler matrix passed"
