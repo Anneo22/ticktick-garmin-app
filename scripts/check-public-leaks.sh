@@ -6,7 +6,7 @@ project_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 # The only public origin this project may name. It is product-named on purpose: any other
 # workers.dev host is a Cloudflare account subdomain, and an account subdomain is a personal
 # identifier. Checking against the allowed value keeps the forbidden one out of the repository
-# without ever writing the forbidden one down. See docs/adr/0003-product-neutral-relay-host.md.
+# without ever writing the forbidden one down.
 allowed_origin="https://ticktick-garmin-relay.garmin-bridge.workers.dev"
 allowed_host=${allowed_origin#https://}
 

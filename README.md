@@ -67,7 +67,7 @@ The relay is a Cloudflare Worker with D1 storage and WebCrypto token encryption.
 - `TOKEN_ENCRYPTION_KEY`
 - `PAIRING_VERIFICATION_URL`
 
-Do not put production values in `wrangler.toml`, source files, the watch package, fixtures, or logs. See [the OAuth relay decision](docs/adr/0001-oauth-relay.md) and [privacy policy](docs/privacy.md) for the boundary.
+Do not put production values in `wrangler.toml`, source files, the watch package, fixtures, or logs. See the [privacy policy](docs/privacy.md) for the boundary.
 
 ## Current status
 
