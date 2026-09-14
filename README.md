@@ -80,3 +80,12 @@ The app has no separate subscription, ads, or analytics. A TickTick account is r
 Copyright 2026 Anneo22. Licensed under [Apache-2.0](LICENSE).
 
 TickTick Tasks for Garmin is independent and is not affiliated with TickTick, Garmin, or Cloudflare.
+
+<p>
+  <a href="https://abcastor.com">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/castor-footer-dark.png">
+      <img src="docs/castor-footer-light.png" width="800" alt="Chip, the Castor beaver, by Castor, we give a dam">
+    </picture>
+  </a>
+</p>
